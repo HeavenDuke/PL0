@@ -1,4 +1,6 @@
 #include "Header.h"
+#include "ErrorContainer.h"
+#include "MyException.h"
 #ifndef TOKENANALYZER_H
 #define TOKENANALYZER_H
 #define MAXN 255
@@ -19,12 +21,16 @@ class TokenAnalyzer
 		char token[MAXN];
 		int num;
 		int index;
+		int id_code;
 		string code;
+		ErrorContainer global_conteiner;
+		
+
 		void Clear();
 		bool IsNum();
 		bool IsAlpha();
 		bool IsPunc();
-		bool IsReserved();
+		int IsReserved();
 		bool IsSpace();
 		bool IsEndOfFile();
 		void GetChar();

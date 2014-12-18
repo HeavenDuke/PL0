@@ -1,6 +1,7 @@
 #include "TokenAnalyzer.h"
 
 TokenAnalyzer::TokenAnalyzer(){
+	global_conteiner=ErrorContainer();
 	index=-1;
 	linenum=1;
 	charindex=1;
@@ -24,23 +25,30 @@ void TokenAnalyzer::LoadFile(){
 	code+="#";
 }
 
-bool TokenAnalyzer::IsReserved(){
-	return false;
-}
-
 void TokenAnalyzer::ParsePunctuation(){
 	switch(ch){
 		case ',':
+			id_code=COMMA_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case ';':
+			id_code=SEMICOLON_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case '.':
+			id_code=DOT_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case '=':
-			cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			id_code=EQUAL_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ':':
 			if(IsEndOfFile()==false){
 				GetChar();
 				if(ch=='='){
-					cout<<"Operand : \':=\'"<<endl;
+					id_code=SET_OPERAND;
+					//cout<<"Operand : \':=\'"<<endl;
 				}
 				else{
 					if(index>0){
@@ -54,51 +62,72 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			break;
 		case '+':
+			id_code=PLUS_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case '-':
+			id_code=MINUS_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case '*':
+			id_code=MUL_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case '/':
-			cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			id_code=DIV_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '<':
 			if(IsEndOfFile()==false){
 				GetChar();
 				if(ch=='='){
-					cout<<"Operand : \'<=\'"<<endl;
+					id_code=LEQUAL_OPERAND;
+					//cout<<"Operand : \'<=\'"<<endl;
 				}
 				else if(ch=='>'){
-					cout<<"Operand : \'<>\'"<<endl;
+					id_code=NEQUAL_OPERAND;
+					//cout<<"Operand : \'<>\'"<<endl;
 				}
 				else{
-					cout<<"Operand : \'<\'"<<endl;
+					id_code=LESS_OPERAND;
+					//cout<<"Operand : \'<\'"<<endl;
 					if(index>0){
 						Retreat();
 					}
 				}
 			}
 			else{
-				cout<<"Operand : \'<\'"<<endl;
+				id_code=LESS_OPERAND;
+				//cout<<"Operand : \'<\'"<<endl;
 			}
 			break;
 		case '>':
 			if(IsEndOfFile()==false){
 				GetChar();
 				if(ch=='='){
-					cout<<"Operand : \'>=\'"<<endl;
+					id_code=MEQUAL_OPERAND;
+					//cout<<"Operand : \'>=\'"<<endl;
 				}
 				else{
-					cout<<"Operand : \'>\'"<<endl;
+					id_code=MORE_OPERAND;
+					//cout<<"Operand : \'>\'"<<endl;
 					if(index>0){
 						Retreat();
 					}
 				}
 			}
 			else{
-				cout<<"Operand : \'>\'"<<endl;
+				id_code=MORE_OPERAND;
+				//cout<<"Operand : \'>\'"<<endl;
 			}
 			break;
 		case '(':
+			id_code=LBRACKET_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			break;
 		case ')':
-			cout<<"Operand : \'"<<ch<<"\'"<<endl;
+			id_code=RBRACKET_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		default:
 			break;
@@ -108,15 +137,17 @@ void TokenAnalyzer::ParsePunctuation(){
 
 void TokenAnalyzer::GetChar(){
 	if(charindex==1){
-		outfile<<"Line "<<linenum<<": ";
+		cout<<"Line "<<linenum<<": ";
 	}
 	ch=code[++index];
+	cout<<ch;
 	charindex++;
 	if(ch=='\n'){
+		global_conteiner.Display();
+		global_conteiner.Clear();
 		charindex=1;
 		linenum++;
 	}
-	outfile<<ch;
 }
 
 void TokenAnalyzer::Retreat(){
@@ -140,7 +171,7 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
-		if(IsEndOfFile()==false){
+		if(IsEndOfFile()==true){
 			break;
 		}
 		GetChar();
@@ -170,6 +201,7 @@ void TokenAnalyzer::Run(){
 }
 
 void TokenAnalyzer::DisplayResult(){
+	cout<<"code: "<<id_code<<endl;
 	cout<<"number: "<<num<<endl;
 	cout<<"token: "<<token<<endl;
 }
@@ -233,6 +265,7 @@ void TokenAnalyzer::ParseNum(){
 			break;
 		}
 	}
+	id_code=CONST_NUMBER;
 	num=sum;
 }
 
@@ -249,15 +282,80 @@ void TokenAnalyzer::ParseString(){
 		}
 	}
 	if(!PreCheckReserved){
-		if(IsReserved()){
-
-		}
-		else{
-			
-		}
+		id_code=IsReserved();
 	}
 	else{
+		id_code=IDENTIFIER;
+	}
+}
 
+int TokenAnalyzer::IsReserved(){
+	switch(token[0]){
+		case 'b':
+			if(strcmp(token,"begin")==0){
+				return BEGIN_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'c':
+			if(strcmp(token,"call")==0){
+				return CALL_RESERVED;
+			}
+			else if(strcmp(token,"const")==0){
+				return CONST_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'i':
+			if(strcmp(token,"if")==0){
+				return IF_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'p':
+			if(strcmp(token,"procedure")==0){
+				return PROCEDURE_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'r':
+			if(strcmp(token,"read")==0){
+				return READ_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'v':
+			if(strcmp(token,"var")==0){
+				return VAR_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'w':
+			if(strcmp(token,"while")==0){
+				return WHILE_RESERVED;
+			}
+			else if(strcmp(token,"write")==0){
+				return WRITE_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		default:
+			return IDENTIFIER;
+			break;
 	}
 }
 

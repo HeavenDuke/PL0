@@ -2,4 +2,8 @@
 #ifndef GRAMMARANALYZER_H
 #define GRAMMARANALYZER_H
 
+class GrammarAnalyzer{
+
+};
+
 #endif

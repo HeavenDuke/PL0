@@ -1,1 +1,1 @@
-Line 1: :=#
+Line 1: const a = 45,b = 27;

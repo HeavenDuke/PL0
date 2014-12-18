@@ -11,6 +11,10 @@ int main(){
 		analyzer.Run();
 		analyzer.Run();
 		analyzer.Run();
+		analyzer.Run();
+		analyzer.Run();
+		analyzer.Run();
+		analyzer.Run();
 	}catch(exception e){
 		cout<<e.what()<<endl;
 	}

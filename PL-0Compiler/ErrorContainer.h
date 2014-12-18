@@ -24,6 +24,15 @@ class ErrorContainer{
 		void Clear(){
 			list.clear();
 		}
+		void Display(){
+			int index=0;
+			for(vector<MyException>::iterator iter=list.begin();iter!=list.end();iter++){
+				for(int j=0;j<iter->GetColumn()-index-1;j++){
+					cout<<' ';
+				}
+				cout<<'^'<<iter->GetType()<<endl;
+			}
+		}
 
 	private:
 		vector<MyException> list;
