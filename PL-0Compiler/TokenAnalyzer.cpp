@@ -1,7 +1,6 @@
 #include "TokenAnalyzer.h"
 
 TokenAnalyzer::TokenAnalyzer(){
-	global_conteiner=ErrorContainer();
 	index=-1;
 	linenum=1;
 	charindex=1;
@@ -10,19 +9,29 @@ TokenAnalyzer::TokenAnalyzer(){
 	GetChar();
 }
 
+const Atoken TokenAnalyzer::GetToken(){
+	Atoken atoken;
+	atoken.Number = num;
+	memset(atoken.Value, 0, sizeof(atoken.Value));
+	strcmp(atoken.Value, token);
+	atoken.Flag = id_code;
+	return atoken;
+}
+
 bool TokenAnalyzer::IsEndOfFile(){
 	return (index>=code.length()-1&&code[index]=='#');
 }
 
 void TokenAnalyzer::LoadFile(){
-	infile.open("in.txt",ios::in);
-	outfile.open("out.txt",ios::out);
+	in_file.open("in.txt",ios::in);
+	out_file.open("out.txt",ios::out);
 	code.clear();
 	char temp;
-	while((temp=infile.get())!=EOF){
+	while((temp=in_file.get())!=EOF){
 		code+=temp;
 	}
 	code+="#";
+	in_file.close();
 }
 
 void TokenAnalyzer::ParsePunctuation(){
@@ -143,8 +152,8 @@ void TokenAnalyzer::GetChar(){
 	cout<<ch;
 	charindex++;
 	if(ch=='\n'){
-		global_conteiner.Display();
-		global_conteiner.Clear();
+		global_container.Display();
+		global_container.Clear();
 		charindex=1;
 		linenum++;
 	}
@@ -310,6 +319,22 @@ int TokenAnalyzer::IsReserved(){
 				return IDENTIFIER;
 			}
 			break;
+		case 'd':
+			if (strcmp(token, "do") == 0){
+				return DO_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'e':
+			if (strcmp(token, "end") == 0){
+				return END_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
 		case 'i':
 			if(strcmp(token,"if")==0){
 				return IF_RESERVED;
@@ -318,6 +343,14 @@ int TokenAnalyzer::IsReserved(){
 				return IDENTIFIER;
 			}
 			break;
+		case 'o':
+			if (strcmp(token, "odd") == 0){
+				return ODD_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break; 
 		case 'p':
 			if(strcmp(token,"procedure")==0){
 				return PROCEDURE_RESERVED;
@@ -328,6 +361,14 @@ int TokenAnalyzer::IsReserved(){
 			break;
 		case 'r':
 			if(strcmp(token,"read")==0){
+				return READ_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 't':
+			if (strcmp(token, "then") == 0){
 				return READ_RESERVED;
 			}
 			else{

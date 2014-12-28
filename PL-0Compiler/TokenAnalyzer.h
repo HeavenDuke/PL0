@@ -5,16 +5,25 @@
 #define TOKENANALYZER_H
 #define MAXN 255
 #define MAXLEN 100000
+
+typedef struct{
+	int Flag;
+	int Number;
+	char Value[MAXN];
+}Atoken;
+
 class TokenAnalyzer
 {
 	public:
 		TokenAnalyzer();
 		void Run();
 		void TestRun();
+		const Atoken GetToken();
+		ErrorContainer global_container;
 		~TokenAnalyzer();
 	private:
-		ifstream infile;
-		ofstream outfile;
+		ifstream in_file;
+		ofstream out_file;
 		int linenum;
 		int charindex;
 		char ch;
@@ -23,8 +32,6 @@ class TokenAnalyzer
 		int index;
 		int id_code;
 		string code;
-		ErrorContainer global_conteiner;
-		
 
 		void Clear();
 		bool IsNum();
