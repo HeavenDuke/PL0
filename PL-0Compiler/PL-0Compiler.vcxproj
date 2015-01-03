@@ -15,16 +15,19 @@
     <ClInclude Include="GrammarAnalyzer.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="MyException.h" />
+    <ClInclude Include="SymTable.h" />
     <ClInclude Include="TokenAnalyzer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ErrorContainer.cpp" />
     <ClCompile Include="GrammarAnalyzer.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SymTable.cpp" />
     <ClCompile Include="TokenAnalyzer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="in.txt" />
+    <Text Include="out.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1BB663E4-72B2-4617-850F-E6160043655B}</ProjectGuid>

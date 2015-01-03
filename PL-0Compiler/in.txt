@@ -3,7 +3,8 @@ var x,y,g,m;
 procedure swap;
     var temp;
 	begin
-	    temp:=x;:/g
+	    temp:=x;
+		x:=y;
 		y:=temp;
 	end;
 procedure mod;
@@ -11,7 +12,7 @@ procedure mod;
 begin
     x:=a;
 	y:=b;
-	call mpd;
+	call mod;
 	while x<>0 do
 	    begin
 		    call swap;

@@ -164,7 +164,7 @@ void TokenAnalyzer::Retreat(){
 }
 
 bool TokenAnalyzer::IsSpace(){
-	if(ch==' '){
+	if (ch == ' ' || ch == '\t'){
 		return true;
 	}
 	return false;
@@ -210,9 +210,13 @@ void TokenAnalyzer::Run(){
 }
 
 void TokenAnalyzer::DisplayResult(){
-	cout<<"code: "<<id_code<<endl;
-	cout<<"number: "<<num<<endl;
-	cout<<"token: "<<token<<endl;
+	/*cout <<"code: "<<id_code<<endl;
+	cout << "number: " << num << endl;
+	cout <<"token: "<<token<<endl;*/
+
+	out_file << "code: " << id_code << endl;
+	out_file << "number: " << num << endl;
+	out_file << "token: " << token << endl;
 }
 
 void TokenAnalyzer::Error(char *s){

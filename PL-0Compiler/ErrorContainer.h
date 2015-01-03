@@ -1,7 +1,7 @@
 #include "Header.h"
 #include "MyException.h"
 #ifndef ERRORCONTAINER_H
-#define ERRORCONTAINED_H
+#define ERRORCONTAINER_H
 
 class ErrorContainer{
 	public:
