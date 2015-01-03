@@ -5,6 +5,7 @@
 
 typedef struct{
 	char name[LEN];
+	bool isConst;
 	int link;
 }Symbol;
 
