@@ -3,8 +3,6 @@
 #include "MyException.h"
 #ifndef TOKENANALYZER_H
 #define TOKENANALYZER_H
-#define MAXN 255
-#define MAXLEN 100000
 
 typedef struct{
 	int Flag;

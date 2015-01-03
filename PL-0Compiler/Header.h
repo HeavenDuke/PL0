@@ -48,4 +48,10 @@
 #define TOKEN_ERROR -3
 #define TOKEN_WARNING -4
 
+#define MAXHASH 1000
+#define LEN 255
+#define MAXP 100
+#define MAXN 255
+#define MAXLEN 100000
+
 using namespace std;

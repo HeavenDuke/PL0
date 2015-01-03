@@ -1,6 +1,7 @@
 #include "Header.h"
 #include "TokenAnalyzer.h"
 #include "ErrorContainer.h"
+#include "SymTable.h"
 #ifndef GRAMMARANALYZER_H
 #define GRAMMARANALYZER_H
 
@@ -16,6 +17,7 @@ class GrammarAnalyzer{
 		void Factor();
 	private:
 		TokenAnalyzer analyzer;
+		SymTable table;
 };
 
 #endif
