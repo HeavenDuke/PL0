@@ -10,6 +10,9 @@
 #include<cstring>
 #include<string>
 #include<vector>
+#include<map>
+#include<algorithm>
+#include<list>
 
 #define BEGIN_RESERVED 1
 #define CALL_RESERVED 2

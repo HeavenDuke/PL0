@@ -13,7 +13,7 @@ const Atoken TokenAnalyzer::GetToken(){
 	Atoken atoken;
 	atoken.Number = num;
 	memset(atoken.Value, 0, sizeof(atoken.Value));
-	strcmp(atoken.Value, token);
+	strcpy(atoken.Value, token);
 	atoken.Flag = id_code;
 	return atoken;
 }

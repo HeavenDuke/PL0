@@ -7,9 +7,10 @@
 int main(){
 	GrammarAnalyzer analyzer;
 	try{
-		analyzer.SubProcedure();
+		analyzer.SubProcedure(0, true, "", 0);
 	}catch(exception e){
 		cout<<e.what()<<endl;
+		analyzer.Show();
 	}
 	return 0;
 }

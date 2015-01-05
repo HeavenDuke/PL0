@@ -219,22 +219,40 @@ void GrammarAnalyzer::Sentence(){
 	
 }
 
-void GrammarAnalyzer::SubProcedure(){
+void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index){
 	if (analyzer.GetToken().Flag == CONST_RESERVED){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == IDENTIFIER){
+			char *sname = new char[255];
+			strcpy(sname, analyzer.GetToken().Value);
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == EQUAL_OPERAND){
 				analyzer.Run();
 				if (analyzer.GetToken().Flag == CONST_NUMBER){
+					Symbol s(sname, analyzer.GetToken().Number, -1, -1, CONSTANT);
+					if (table.Check(s) == false){
+						table.Add(s);
+					}
+					else{
+						throw exception("nanni!");
+					}
 					analyzer.Run();
 					while (analyzer.GetToken().Flag == COMMA_OPERAND){
 						analyzer.Run();
 						if (analyzer.GetToken().Flag == IDENTIFIER){
+							char *sname = new char[255];
+							strcpy(sname, analyzer.GetToken().Value);
 							analyzer.Run();
 							if (analyzer.GetToken().Flag == EQUAL_OPERAND){
 								analyzer.Run();
 								if (analyzer.GetToken().Flag == CONST_NUMBER){
+									Symbol s(sname, analyzer.GetToken().Number, -1, -1, CONSTANT);
+									if (table.Check(s) == false){
+										table.Add(s);
+									}
+									else{
+										throw exception("nanni!");
+									}
 									analyzer.Run();
 								}
 								else{
@@ -275,13 +293,34 @@ void GrammarAnalyzer::SubProcedure(){
 			//ERROR!
 		}
 	}
+	int addr = 3;
 	if (analyzer.GetToken().Flag == VAR_RESERVED){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == IDENTIFIER){
+			char *sname = new char[255];
+			strcpy(sname, analyzer.GetToken().Value);
+			Symbol s(sname, 0, 0, index, VARIABLE);
+			if (table.Check(s) == false){
+				s.adr = addr++;
+				table.Add(s);
+			}
+			else{
+				throw exception("nanni!");
+			}
 			analyzer.Run();
 			while (analyzer.GetToken().Flag == COMMA_OPERAND){
 				analyzer.Run();
 				if (analyzer.GetToken().Flag == IDENTIFIER){
+					char *sname = new char[255];
+					strcpy(sname, analyzer.GetToken().Value);
+					Symbol s(sname, 0, 0, index, VARIABLE);
+					if (table.Check(s) == false){
+						s.adr = addr++;
+						table.Add(s);
+					}
+					else{
+						throw exception("nanni!");
+					}
 					analyzer.Run();
 				}
 				else{
@@ -305,10 +344,12 @@ void GrammarAnalyzer::SubProcedure(){
 	while (analyzer.GetToken().Flag == PROCEDURE_RESERVED){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == IDENTIFIER){
+			Procedure p(analyzer.GetToken().Value, level);
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 				analyzer.Run();
-				SubProcedure();
+				int indexnumber = table.AddPro(p);
+				SubProcedure(level + 1, false, p.name, indexnumber);
 				if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 					analyzer.Run();
 				}

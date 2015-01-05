@@ -1,5 +1,5 @@
 const a = 45,b = 27;
-var x,y,g,m;
+var x,y,g;
 procedure swap;
     var temp;
 	begin
@@ -8,6 +8,8 @@ procedure swap;
 		y:=temp;
 	end;
 procedure mod;
+	procedure test;
+		x:=x-1;
     x:=x-x/y*y;
 begin
     x:=a;

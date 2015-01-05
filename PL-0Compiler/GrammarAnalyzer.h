@@ -9,12 +9,13 @@ class GrammarAnalyzer{
 	public:
 		GrammarAnalyzer();
 		~GrammarAnalyzer();
-		void SubProcedure();
+		void SubProcedure(int level, bool isroot, char *name,int index);
 		void Sentence();
 		void Condition();
 		void Expression();
 		void Item();
 		void Factor();
+		void Show(){ table.Display(); }
 	private:
 		TokenAnalyzer analyzer;
 		SymTable table;
