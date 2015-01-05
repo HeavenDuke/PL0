@@ -61,12 +61,6 @@ token: var
 code: 14
 number: 0
 token: temp
-code: 19
-number: 0
-token: 
-code: 14
-number: 0
-token: x
 code: 20
 number: 0
 token: 
@@ -124,12 +118,30 @@ token: mod
 code: 20
 number: 0
 token: 
+code: 11
+number: 0
+token: var
+code: 14
+number: 0
+token: x
+code: 20
+number: 0
+token: 
 code: 8
 number: 0
 token: procedure
 code: 14
 number: 0
 token: test
+code: 20
+number: 0
+token: 
+code: 11
+number: 0
+token: var
+code: 14
+number: 0
+token: x
 code: 20
 number: 0
 token: 

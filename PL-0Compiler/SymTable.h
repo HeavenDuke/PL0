@@ -11,6 +11,7 @@ typedef struct Symbol{
 	bool kind;
 	int adr;
 	int proindex;
+	int parent;
 	Symbol(char *n,const int v, int a,int pro, bool k){
 		strcpy(name, n);
 		value = v;
