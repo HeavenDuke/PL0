@@ -7,7 +7,7 @@ class RuntimeStack{
 		RuntimeStack();
 		~RuntimeStack();
 	private:
-
+		
 };
 
 #endif

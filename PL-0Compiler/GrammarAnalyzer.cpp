@@ -8,28 +8,54 @@ GrammarAnalyzer::~GrammarAnalyzer(){
 
 }
 
-void GrammarAnalyzer::Item(){
-	Factor();
+void GrammarAnalyzer::Item(int level, int indexnumber){
+	Factor(level, indexnumber);
 	for (Atoken token = analyzer.GetToken(); token.Flag == MUL_OPERAND || token.Flag == DIV_OPERAND;){
+		int value = token.Flag;
+		switch (value){
+			case MUL_OPERAND:
+				value = MUL;
+				break;
+			case DIV_OPERAND:
+				value = DIV;
+				break;
+		}
 		analyzer.Run();
-		Expression();
+		Factor(level, indexnumber);
+		generator.Add(OPR, 0, value);
 		token = analyzer.GetToken();
 	}
 }
 
-void GrammarAnalyzer::Factor(){
+void GrammarAnalyzer::Factor(int level, int indexnumber){
 	if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
 		analyzer.Run();
-		Expression();
-		if (analyzer.GetToken().Flag != RBRACKET_OPERAND){
+		Expression(level, indexnumber);
+		if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
 			analyzer.Run();
 		}
 	}
 	else if (analyzer.GetToken().Flag == CONST_NUMBER){
+		generator.Add(LIT, 0, analyzer.GetToken().Number);
 		analyzer.Run();
 	}
 	else if (analyzer.GetToken().Flag == IDENTIFIER){
-		analyzer.Run();
+		int index = table.Locate(analyzer.GetToken().Value, level, indexnumber);
+		if (index != -1){
+			Symbol sym = table.GetSymbol(index);
+			switch (sym.kind){
+			case CONSTANT:
+				generator.Add(LIT, 0, sym.value);
+				break;
+			case VARIABLE:
+				generator.Add(LOD, level - sym.level, sym.adr);
+				break;
+			}
+			analyzer.Run();
+		}
+		else{
+			//ERROR!
+		}
 	}
 	else{
 		//cout << 1 << endl;
@@ -37,27 +63,48 @@ void GrammarAnalyzer::Factor(){
 	}
 }
 
-void GrammarAnalyzer::Expression(){
-	Atoken token = analyzer.GetToken();
-	if (token.Flag == PLUS_OPERAND || token.Flag == MINUS_OPERAND){
-		analyzer.GetToken();
-	}
-	Item();
-	for (Atoken token = analyzer.GetToken(); token.Flag == PLUS_OPERAND || token.Flag == MINUS_OPERAND;){
+void GrammarAnalyzer::Expression(int level, int indexnumber){
+	if (analyzer.GetToken().Flag == PLUS_OPERAND || analyzer.GetToken().Flag == MINUS_OPERAND){
+		int value = analyzer.GetToken().Flag;
+		switch (value){
+			case PLUS_OPERAND:
+				value = ADD;
+				break;
+			case MINUS_OPERAND:
+				value = SUB;
+				break;
+		}
+		generator.Add(OPR, 0, value);
 		analyzer.Run();
-		Item();
+	}
+	else{
+		Item(level, indexnumber);
+	}
+	for (Atoken token = analyzer.GetToken(); token.Flag == PLUS_OPERAND || token.Flag == MINUS_OPERAND;){
+		int value = token.Flag;
+		switch (value){
+			case PLUS_OPERAND:
+				value = ADD;
+				break;
+			case MINUS_OPERAND:
+				value = SUB;
+				break;
+		}
+		analyzer.Run();
+		Item(level, indexnumber);
+		generator.Add(OPR, 0, value);
 		token = analyzer.GetToken();
 	}
 }
 
-void GrammarAnalyzer::Condition(){
+void GrammarAnalyzer::Condition(int level, int indexnumber){
 	Atoken token = analyzer.GetToken();
 	if (token.Flag == ODD_RESERVED){
 		analyzer.Run();
-		Expression();
+		Expression(level, indexnumber);
 	}
 	else{
-		Expression();
+		Expression(level, indexnumber);
 		Atoken token2 = analyzer.GetToken();
 		switch (token2.Flag){
 			case EQUAL_OPERAND:
@@ -78,17 +125,17 @@ void GrammarAnalyzer::Condition(){
 				break;
 		}
 		analyzer.Run();
-		Expression();
+		Expression(level, indexnumber);
 	}
 }
 
-void GrammarAnalyzer::Sentence(){
+void GrammarAnalyzer::Sentence(int level, int indexnumber){
 	switch (analyzer.GetToken().Flag){
 		case IDENTIFIER:
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == SET_OPERAND){
 				analyzer.Run();
-				Expression();
+				Expression(level, indexnumber);
 			}
 			else{
 				//cout << 3 << endl;
@@ -107,14 +154,14 @@ void GrammarAnalyzer::Sentence(){
 			break;
 		case BEGIN_RESERVED:
 			analyzer.Run();
-			Sentence();
+			Sentence(level, indexnumber);
 			if (analyzer.GetToken().Flag == END_RESERVED){
 				analyzer.Run();
 			}
 			else if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 				while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 					analyzer.Run();
-					Sentence();
+					Sentence(level, indexnumber);
 				}
 				if (analyzer.GetToken().Flag == END_RESERVED){
 					analyzer.Run();
@@ -131,10 +178,10 @@ void GrammarAnalyzer::Sentence(){
 			break;
 		case IF_RESERVED:
 			analyzer.Run();
-			Condition();
+			Condition(level, indexnumber);
 			if (analyzer.GetToken().Flag == THEN_RESERVED){
 				analyzer.Run();
-				Sentence();
+				Sentence(level, indexnumber);
 			}
 			else{
 				//cout << 7 << endl;
@@ -173,10 +220,10 @@ void GrammarAnalyzer::Sentence(){
 			break;
 		case WHILE_RESERVED:
 			analyzer.Run();
-			Condition();
+			Condition(level, indexnumber);
 			if (analyzer.GetToken().Flag == DO_RESERVED){
 				analyzer.Run();
-				Sentence();
+				Sentence(level, indexnumber);
 			}
 			else{
 				//cout << 11 << endl;
@@ -229,7 +276,7 @@ void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index)
 			if (analyzer.GetToken().Flag == EQUAL_OPERAND){
 				analyzer.Run();
 				if (analyzer.GetToken().Flag == CONST_NUMBER){
-					Symbol s(sname, analyzer.GetToken().Number, -1, -1, CONSTANT);
+					Symbol s(sname, analyzer.GetToken().Number, 0, 0, CONSTANT, level);
 					if (table.Check(s) == false){
 						table.Add(s);
 					}
@@ -246,7 +293,7 @@ void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index)
 							if (analyzer.GetToken().Flag == EQUAL_OPERAND){
 								analyzer.Run();
 								if (analyzer.GetToken().Flag == CONST_NUMBER){
-									Symbol s(sname, analyzer.GetToken().Number, -1, -1, CONSTANT);
+									Symbol s(sname, analyzer.GetToken().Number, 0, 0, CONSTANT, level);
 									if (table.Check(s) == false){
 										table.Add(s);
 									}
@@ -299,7 +346,7 @@ void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index)
 		if (analyzer.GetToken().Flag == IDENTIFIER){
 			char *sname = new char[255];
 			strcpy(sname, analyzer.GetToken().Value);
-			Symbol s(sname, 0, 0, index, VARIABLE);
+			Symbol s(sname, 0, 0, index, VARIABLE, level);
 			if (table.Check(s) == false){
 				s.adr = addr++;
 				table.Add(s);
@@ -313,7 +360,7 @@ void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index)
 				if (analyzer.GetToken().Flag == IDENTIFIER){
 					char *sname = new char[255];
 					strcpy(sname, analyzer.GetToken().Value);
-					Symbol s(sname, 0, 0, index, VARIABLE);
+					Symbol s(sname, 0, 0, index, VARIABLE, level);
 					if (table.Check(s) == false){
 						s.adr = addr++;
 						table.Add(s);
@@ -368,6 +415,6 @@ void GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int index)
 			//ERROR!
 		}
 	}
-	Sentence();
+	Sentence(level, index);
 	//analyzer.Run();
 }
