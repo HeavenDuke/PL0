@@ -335,6 +335,9 @@ int TokenAnalyzer::IsReserved(){
 			if (strcmp(token, "end") == 0){
 				return END_RESERVED;
 			}
+			else if (strcmp(token, "else") == 0){
+				return ELSE_RESERVED;
+			}
 			else{
 				return IDENTIFIER;
 			}
@@ -367,6 +370,9 @@ int TokenAnalyzer::IsReserved(){
 			if(strcmp(token,"read")==0){
 				return READ_RESERVED;
 			}
+			else if (strcmp(token, "repeat") == 0){
+				return REPEAT_RESERVED;
+			}
 			else{
 				return IDENTIFIER;
 			}
@@ -374,6 +380,14 @@ int TokenAnalyzer::IsReserved(){
 		case 't':
 			if (strcmp(token, "then") == 0){
 				return THEN_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'u':
+			if (strcmp(token, "until") == 0){
+				return UNTIL_RESERVED;
 			}
 			else{
 				return IDENTIFIER;

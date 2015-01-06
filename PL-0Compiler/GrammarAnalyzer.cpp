@@ -234,7 +234,17 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 			if (analyzer.GetToken().Flag == THEN_RESERVED){
 				analyzer.Run();
 				Sentence(level, begin);
-				generator.AdjustJump(index, generator.GetSize());
+				if (analyzer.GetToken().Flag == ELSE_RESERVED){
+					generator.Add(JMP, 0, 0);
+					generator.AdjustJump(index, generator.GetSize());
+					index = generator.GetSize() - 1;
+					analyzer.Run();
+					Sentence(level, begin);
+					generator.AdjustJump(index, generator.GetSize());
+				}
+				else{
+					generator.AdjustJump(index, generator.GetSize());
+				}
 			}
 			else{
 				//cout << 7 << endl;
@@ -288,6 +298,23 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 			}
 			else{
 				//cout << 10 << endl;
+				//ERROR!
+			}
+			break;
+		case REPEAT_RESERVED:
+			analyzer.Run();
+			index = generator.GetSize();
+			Sentence(level, begin);
+			while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
+				analyzer.Run();
+				Sentence(level, begin);
+			}
+			if (analyzer.GetToken().Flag == UNTIL_RESERVED){
+				analyzer.Run();
+				Condition(level);
+				generator.Add(JPC, 0, index);
+			}
+			else{
 				//ERROR!
 			}
 			break;
