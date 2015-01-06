@@ -43,6 +43,12 @@ token:
 code: 14
 number: 0
 token: g
+code: 19
+number: 0
+token: 
+code: 14
+number: 0
+token: m
 code: 20
 number: 0
 token: 
@@ -115,33 +121,6 @@ token: procedure
 code: 14
 number: 0
 token: mod
-code: 20
-number: 0
-token: 
-code: 8
-number: 0
-token: procedure
-code: 14
-number: 0
-token: test
-code: 20
-number: 0
-token: 
-code: 14
-number: 0
-token: x
-code: 22
-number: 0
-token: 
-code: 14
-number: 0
-token: x
-code: 17
-number: 0
-token: 
-code: 15
-number: 1
-token: 
 code: 20
 number: 0
 token: 
@@ -304,12 +283,6 @@ token: m
 code: 24
 number: 0
 token: 
-code: 20
-number: 0
-token: 
 code: 5
 number: 0
 token: end
-code: 18
-number: 0
-token: 

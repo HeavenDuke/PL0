@@ -16,6 +16,7 @@ class TokenAnalyzer
 		TokenAnalyzer();
 		void Run();
 		void TestRun();
+		void Retreat();
 		const Atoken GetToken();
 		ErrorContainer global_container;
 		~TokenAnalyzer();
@@ -40,7 +41,6 @@ class TokenAnalyzer
 		bool IsEndOfFile();
 		void GetChar();
 		bool IsLineEnd();
-		void Retreat();
 		void LoadFile();
 		void ParseNum();
 		void ParseString();

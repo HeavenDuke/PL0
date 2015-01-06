@@ -6,19 +6,42 @@
 #ifndef GRAMMARANALYZER_H
 #define GRAMMARANALYZER_H
 
+typedef struct Adjust{
+	int index;
+	int addr;
+	Adjust(int i, int a){
+		index = i;
+		addr = a;
+	}
+	Adjust(){
+		index = 0;
+		addr = 0;
+	}
+};
+
 class GrammarAnalyzer{
 	public:
 		GrammarAnalyzer();
 		~GrammarAnalyzer();
-		void SubProcedure(int level, bool isroot, char *name,int index);
-		void Sentence(int level, int indexnumber);
-		void Condition(int level, int indexnumber);
-		void Expression(int level, int indexnumber);
-		void Item(int level, int indexnumber);
-		void Factor(int level, int indexnumber);
+		int SubProcedure(int level, bool isroot, char *name, int prev);
+		void Sentence(int level, int begin);
+		void Condition(int level);
+		void Expression(int level);
+		void Item(int level);
+		void Factor(int level);
 		void Show(){
 			table.Display();
 			generator.Show();
+		}
+		void Run(){
+			try{
+				SubProcedure(0, true, "", -1);
+			}
+			catch (exception e){
+				//cout << e.what() << endl;
+				generator.Add(OPR, 0, 0);
+				Show();
+			}
 		}
 	private:
 		TokenAnalyzer analyzer;

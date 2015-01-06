@@ -157,6 +157,9 @@ void TokenAnalyzer::GetChar(){
 		charindex=1;
 		linenum++;
 	}
+	if (IsEndOfFile() == true){
+		throw exception("End Of File!");
+	}
 }
 
 void TokenAnalyzer::Retreat(){
@@ -204,9 +207,6 @@ void TokenAnalyzer::Run(){
 		throw exception("Unidentified Character!");
 	}
 	DisplayResult();
-	if(IsEndOfFile()==true){
-		throw exception("End Of File!");
-	}
 }
 
 void TokenAnalyzer::DisplayResult(){
@@ -373,7 +373,7 @@ int TokenAnalyzer::IsReserved(){
 			break;
 		case 't':
 			if (strcmp(token, "then") == 0){
-				return READ_RESERVED;
+				return THEN_RESERVED;
 			}
 			else{
 				return IDENTIFIER;
