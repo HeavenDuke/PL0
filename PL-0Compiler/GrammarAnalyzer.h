@@ -2,6 +2,7 @@
 #include "TokenAnalyzer.h"
 #include "ErrorContainer.h"
 #include "SymTable.h"
+#include "RuntimeStack.h"
 #include "PCodeGenerator.h"
 #ifndef GRAMMARANALYZER_H
 #define GRAMMARANALYZER_H
@@ -33,6 +34,7 @@ class GrammarAnalyzer{
 			table.Display();
 			generator.Show();
 		}
+		void Analysis();
 		void Run(){
 			try{
 				SubProcedure(0, true, "", -1);
@@ -47,6 +49,7 @@ class GrammarAnalyzer{
 		TokenAnalyzer analyzer;
 		SymTable table;
 		PCodeGenerator generator;
+		RuntimeStack stack;
 };
 
 #endif

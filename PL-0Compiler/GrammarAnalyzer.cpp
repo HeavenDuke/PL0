@@ -595,3 +595,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
 	}
 	return generator.GetSize();
 }
+
+void GrammarAnalyzer::Analysis(){
+
+}
