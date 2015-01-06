@@ -103,6 +103,7 @@ void GrammarAnalyzer::Condition(int level){
 	if (token.Flag == ODD_RESERVED){
 		analyzer.Run();
 		Expression(level);
+		generator.Add(OPR, 0, ODD);
 	}
 	else{
 		Expression(level);
