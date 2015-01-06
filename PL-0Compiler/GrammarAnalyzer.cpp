@@ -65,21 +65,16 @@ void GrammarAnalyzer::Factor(int level){
 }
 
 void GrammarAnalyzer::Expression(int level){
+	int shift = 0;
 	if (analyzer.GetToken().Flag == PLUS_OPERAND || analyzer.GetToken().Flag == MINUS_OPERAND){
-		int value = analyzer.GetToken().Flag;
-		switch (value){
-			case PLUS_OPERAND:
-				value = ADD;
-				break;
-			case MINUS_OPERAND:
-				value = SUB;
-				break;
+		if (analyzer.GetToken().Flag == MINUS_OPERAND){
+			shift = 1;
 		}
-		generator.Add(OPR, 0, value);
 		analyzer.Run();
 	}
-	else{
-		Item(level);
+	Item(level);
+	if (shift == 1){
+		generator.Add(OPR, 0, 1);
 	}
 	for (Atoken token = analyzer.GetToken(); token.Flag == PLUS_OPERAND || token.Flag == MINUS_OPERAND;){
 		int value = token.Flag;
