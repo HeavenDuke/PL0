@@ -260,7 +260,7 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 					index = table.Locate(analyzer.GetToken().Value);
 					if (index != -1){
 						Symbol s = table.GetSymbol(index);
-						if (s.kind == VARIABLE || s.kind == CONSTANT){
+						if (s.kind == VARIABLE){
 							generator.Add(RED, level - s.level, s.adr);
 						}
 						else{
@@ -274,7 +274,7 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 							index = table.Locate(analyzer.GetToken().Value);
 							if (index != -1){
 								Symbol s = table.GetSymbol(index);
-								if (s.kind == VARIABLE || s.kind == CONSTANT){
+								if (s.kind == VARIABLE){
 									generator.Add(RED, level - s.level, s.adr);
 								}
 								else{
@@ -341,7 +341,25 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
 				analyzer.Run();
-				if (analyzer.GetToken().Flag == IDENTIFIER){
+				Expression(level);
+				generator.Add(WRT, 0, 0);
+				while (analyzer.GetToken().Flag == COMMA_OPERAND){
+					analyzer.Run();
+					Expression(level);
+					generator.Add(WRT, 0, 0);
+				}
+				if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
+					analyzer.Run();
+				}
+				else{
+					//ERROR!
+				}
+			}
+			else{
+				//ERROR!
+			}
+			break;
+				/*if (analyzer.GetToken().Flag == IDENTIFIER){
 					index = table.Locate(analyzer.GetToken().Value);
 					if (index != -1){
 						Symbol s = table.GetSymbol(index);
@@ -433,7 +451,7 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 				//cout << 14 << endl;
 				//ERROR!
 			}
-			break;
+			break;*/
 		default:
 			break;
 	}
