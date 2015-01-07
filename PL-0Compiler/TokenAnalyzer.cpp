@@ -18,10 +18,6 @@ const Atoken TokenAnalyzer::GetToken(){
 	return atoken;
 }
 
-bool TokenAnalyzer::IsEndOfFile(){
-	return (index>=code.length()-1&&code[index]=='#');
-}
-
 void TokenAnalyzer::LoadFile(){
 	in_file.open("in.txt",ios::in);
 	out_file.open("out.txt",ios::out);
@@ -30,7 +26,7 @@ void TokenAnalyzer::LoadFile(){
 	while((temp=in_file.get())!=EOF){
 		code+=temp;
 	}
-	code+="#";
+	code += '#';
 	in_file.close();
 }
 
@@ -53,21 +49,13 @@ void TokenAnalyzer::ParsePunctuation(){
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ':':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=SET_OPERAND;
+			GetChar();
+			if(ch=='='){
+				id_code=SET_OPERAND;
 					//cout<<"Operand : \':=\'"<<endl;
-				}
-				else{
-					if(index>0){
-						Retreat();
-					}
-					throw exception("UnIdentified Token!");
-				}
 			}
 			else{
-				throw exception("UnIdentified Token!");
+				//ERROR!
 			}
 			break;
 		case '+':
@@ -87,47 +75,31 @@ void TokenAnalyzer::ParsePunctuation(){
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '<':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=LEQUAL_OPERAND;
+			GetChar();
+			if(ch=='='){
+				id_code=LEQUAL_OPERAND;
 					//cout<<"Operand : \'<=\'"<<endl;
-				}
-				else if(ch=='>'){
-					id_code=NEQUAL_OPERAND;
+			}
+			else if(ch=='>'){
+				id_code=NEQUAL_OPERAND;
 					//cout<<"Operand : \'<>\'"<<endl;
-				}
-				else{
-					id_code=LESS_OPERAND;
-					//cout<<"Operand : \'<\'"<<endl;
-					if(index>0){
-						Retreat();
-					}
-				}
 			}
 			else{
 				id_code=LESS_OPERAND;
-				//cout<<"Operand : \'<\'"<<endl;
+					//cout<<"Operand : \'<\'"<<endl;
+				Retreat();
 			}
 			break;
 		case '>':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=MEQUAL_OPERAND;
+			GetChar();
+			if(ch=='='){
+				id_code=MEQUAL_OPERAND;
 					//cout<<"Operand : \'>=\'"<<endl;
-				}
-				else{
-					id_code=MORE_OPERAND;
-					//cout<<"Operand : \'>\'"<<endl;
-					if(index>0){
-						Retreat();
-					}
-				}
 			}
 			else{
 				id_code=MORE_OPERAND;
-				//cout<<"Operand : \'>\'"<<endl;
+					//cout<<"Operand : \'>\'"<<endl;
+				Retreat();
 			}
 			break;
 		case '(':
@@ -143,7 +115,6 @@ void TokenAnalyzer::ParsePunctuation(){
 	}
 }
 
-
 void TokenAnalyzer::GetChar(){
 	if(charindex==1){
 		cout<<"Line "<<linenum<<": ";
@@ -157,9 +128,10 @@ void TokenAnalyzer::GetChar(){
 		charindex=1;
 		linenum++;
 	}
-	if (IsEndOfFile() == true){
-		throw exception("End Of File!");
-	}
+}
+
+bool TokenAnalyzer::IsEndOfFile(){
+	return (ch == '#');
 }
 
 void TokenAnalyzer::Retreat(){
@@ -183,9 +155,6 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
-		if(IsEndOfFile()==true){
-			break;
-		}
 		GetChar();
 	}
 	if(IsAlpha()){
@@ -196,15 +165,10 @@ void TokenAnalyzer::Run(){
 	}
 	else if(IsPunc()){
 		ParsePunctuation();
-		if(IsEndOfFile()==false){
-			GetChar();
-		}
+		GetChar();
 	}
 	else{
-		if(IsEndOfFile()==false){
-			GetChar();
-		}
-		throw exception("Unidentified Character!");
+		//ERROR!
 	}
 	DisplayResult();
 }
@@ -271,12 +235,7 @@ void TokenAnalyzer::ParseNum(){
 	int sum=0;
 	while(IsNum()){
 		sum=sum*10+(ch-'0');
-		if(IsEndOfFile()==false){
-			GetChar();
-		}
-		else{
-			break;
-		}
+		GetChar();
 	}
 	id_code=CONST_NUMBER;
 	num=sum;
@@ -287,12 +246,7 @@ void TokenAnalyzer::ParseString(){
 	bool PreCheckReserved=false;
 	while(IsAlpha()||(PreCheckReserved=IsNum())){
 		token[i++]=ch;
-		if(IsEndOfFile()==false){
-			GetChar();
-		}
-		else{
-			break;
-		}
+		GetChar();
 	}
 	if(!PreCheckReserved){
 		id_code=IsReserved();

@@ -1,12 +1,23 @@
 #include "GrammarAnalyzer.h"
 
 GrammarAnalyzer::GrammarAnalyzer(){
-	analyzer.Run();
-	generator.Add(JMP, 0, 0);
+	
 }
 
 GrammarAnalyzer::~GrammarAnalyzer(){
 
+}
+
+void GrammarAnalyzer::Procedure(){
+	analyzer.Run();
+	generator.Add(JMP, 0, 0);
+	SubProcedure(0, true, "", -1);
+	if (analyzer.GetToken().Flag == DOT_OPERAND){
+		generator.Add(OPR, 0, 0);
+	}
+	else{
+		//ERROR!
+	}
 }
 
 void GrammarAnalyzer::Item(int level){
@@ -201,25 +212,13 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 		case BEGIN_RESERVED:
 			analyzer.Run();
 			Sentence(level, begin);
-			if (analyzer.GetToken().Flag == END_RESERVED){
+			while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 				analyzer.Run();
+				Sentence(level, begin);
 			}
-			else if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
-				while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
-					analyzer.Run();
-					Sentence(level, begin);
-				}
-				if (analyzer.GetToken().Flag == END_RESERVED){
-					analyzer.Run();
-				}
-				else{
-					//cout << 5 << endl;
-					//ERROR!
-				}
-			}
-			else{
-				//cout << 6 << endl;
-				//ERROR!
+			if (analyzer.GetToken().Flag == END_RESERVED){
+				cout << 2333 << endl;
+				analyzer.Run();
 			}
 			break;
 		case IF_RESERVED:
@@ -323,7 +322,6 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 				index = generator.GetSize() - 1;
 				analyzer.Run();
 				Sentence(level, begin);
-				//cout << endl << addr1 << " " << index << endl;
 				generator.Add(JMP, 0, addr1);
 				generator.AdjustJump(index, generator.GetSize());
 			}
@@ -354,99 +352,6 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 				//ERROR!
 			}
 			break;
-				/*if (analyzer.GetToken().Flag == IDENTIFIER){
-					index = table.Locate(analyzer.GetToken().Value);
-					if (index != -1){
-						Symbol s = table.GetSymbol(index);
-						if (s.kind == VARIABLE || s.kind == CONSTANT){
-							generator.Add(LOD, level - s.level, s.adr);
-						}
-						else{
-							//ERROR!
-						}
-					}
-					generator.Add(WRT, 0, 0);
-					analyzer.Run();
-					while (analyzer.GetToken().Flag == COMMA_OPERAND){
-						analyzer.Run();
-						if (analyzer.GetToken().Flag == IDENTIFIER){
-							index = table.Locate(analyzer.GetToken().Value);
-							if (index != -1){
-								Symbol s = table.GetSymbol(index);
-								if (s.kind == VARIABLE || s.kind == CONSTANT){
-									generator.Add(LOD, level - s.level, s.adr);
-								}
-								else{
-									//ERROR!
-								}
-							}
-							generator.Add(WRT, 0, 0);
-							analyzer.Run();
-						}
-						else if (analyzer.GetToken().Flag == CONST_NUMBER){
-							generator.Add(LIT, 0, analyzer.GetToken().Number);
-							generator.Add(WRT, 0, 0);
-							analyzer.Run();
-						}
-						else{
-							//ERROR
-						}
-					}
-					if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
-						analyzer.Run();
-					}
-					else{
-						//cout << 12 << endl;
-						//ERROR!
-					}
-				}
-				else if (analyzer.GetToken().Flag == CONST_NUMBER){
-					generator.Add(LIT, 0, analyzer.GetToken().Number);
-					generator.Add(WRT, 0, 0);
-					analyzer.Run();
-					while (analyzer.GetToken().Flag == COMMA_OPERAND){
-						analyzer.Run();
-						if (analyzer.GetToken().Flag == IDENTIFIER){
-							index = table.Locate(analyzer.GetToken().Value);
-							if (index != -1){
-								Symbol s = table.GetSymbol(index);
-								if (s.kind == VARIABLE || s.kind == CONSTANT){
-									generator.Add(LOD, level - s.level, s.adr);
-								}
-								else{
-									//ERROR!
-								}
-							}
-							generator.Add(WRT, 0, 0);
-							analyzer.Run();
-						}
-						else if (analyzer.GetToken().Flag == CONST_NUMBER){
-							generator.Add(LIT, 0, analyzer.GetToken().Number);
-							generator.Add(WRT, 0, 0);
-							analyzer.Run();
-						}
-						else{
-							//ERROR
-						}
-					}
-					if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
-						analyzer.Run();
-					}
-					else{
-						//cout << 12 << endl;
-						//ERROR!
-					}
-				}
-				else{
-					//cout << 13 << endl;
-					//ERROR!
-				}
-			}
-			else{
-				//cout << 14 << endl;
-				//ERROR!
-			}
-			break;*/
 		default:
 			break;
 	}
@@ -607,9 +512,6 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
 				if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 					generator.Add(OPR, 0, 0);
 					analyzer.Run();
-				}
-				else if (analyzer.GetToken().Flag == DOT_OPERAND){
-					generator.Add(OPR, 0, 0);
 				}
 				else{
 					//cout << 25 << endl;

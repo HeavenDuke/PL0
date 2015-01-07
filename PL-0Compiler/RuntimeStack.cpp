@@ -169,5 +169,5 @@ void RuntimeStack::Run(PCodeGenerator g, SymTable t){
 }
 
 int RuntimeStack::Base(SymTable table, int index){
-	
+	return 0;
 }

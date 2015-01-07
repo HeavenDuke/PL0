@@ -22,7 +22,17 @@ bool SymTable::Check(Symbol s){
 		return false;
 	}
 }
-
+/*int SymTable::Locate(const char *name,int level,const char* proname){
+	int index = SymbolTable.size() - 1;
+	for (vector<Symbol>::reverse_iterator iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
+		if (strcmp(name, iter->name) == 0){
+			if(iter->level<
+				return index;
+		}
+		index--;
+	}
+	return -1;
+}*/
 int SymTable::Locate(const char *name){
 	int index = SymbolTable.size() - 1;
 	for (vector<Symbol>::reverse_iterator iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){

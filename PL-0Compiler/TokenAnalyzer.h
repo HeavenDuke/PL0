@@ -18,8 +18,10 @@ class TokenAnalyzer
 		void TestRun();
 		void Retreat();
 		const Atoken GetToken();
-		ErrorContainer global_container;
+		bool IsEndOfFile();
 		~TokenAnalyzer();
+
+		ErrorContainer global_container;
 	private:
 		ifstream in_file;
 		ofstream out_file;
@@ -38,7 +40,6 @@ class TokenAnalyzer
 		bool IsPunc();
 		int IsReserved();
 		bool IsSpace();
-		bool IsEndOfFile();
 		void GetChar();
 		bool IsLineEnd();
 		void LoadFile();

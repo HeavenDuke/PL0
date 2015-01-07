@@ -24,6 +24,7 @@ class GrammarAnalyzer{
 	public:
 		GrammarAnalyzer();
 		~GrammarAnalyzer();
+		void Procedure();
 		int SubProcedure(int level, bool isroot, char *name, int prev);
 		void Sentence(int level, int begin);
 		void Condition(int level);
@@ -37,13 +38,13 @@ class GrammarAnalyzer{
 		void Analysis();
 		void Run(){
 			try{
-				SubProcedure(0, true, "", -1);
+				Procedure();
+				Show();
 			}
 			catch (exception e){
 				//cout << e.what() << endl;
-				generator.Add(OPR, 0, 0);
 				Show();
-				Analysis();
+				//Analysis();
 			}
 		}
 	private:
