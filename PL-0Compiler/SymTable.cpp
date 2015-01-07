@@ -35,12 +35,13 @@ int SymTable::Locate(const char *name){
 }
 
 void SymTable::Display(){
-	cout << setw(10) << left << "name" << setw(10) << left << "kind" << setw(10) << left << "value" << setw(10) << left << "level" << setw(10) << left << "addr" << endl;
+	cout << endl;
+	cout << setw(10) << right << "name" << setw(10) << right << "kind" << setw(10) << right << "value" << setw(10) << right << "level" << setw(10) << right << "addr" << endl;
 	for (vector<Symbol>::iterator iter = SymbolTable.begin(); iter != SymbolTable.end(); iter++){
-		 cout<< setw(10) << left << iter->name 
-			 << setw(10) << left << iter->kind
-			 << setw(10) << left << iter->value
-			 << setw(10) << left << iter->level
-			 << setw(10) << left << iter->adr << endl;
+		 cout<< setw(10) << right << iter->name 
+			 << setw(10) << right << iter->kind
+			 << setw(10) << right << iter->value
+			 << setw(10) << right << iter->level
+			 << setw(10) << right << iter->adr << endl;
 	}
 }

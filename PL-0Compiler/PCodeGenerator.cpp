@@ -46,3 +46,23 @@ const char *PCodeGenerator::Select(int value){
 			break;
 	}
 }
+
+PCode PCodeGenerator::GetCommand(int index){
+	return codelist[index];
+}
+
+void PCodeGenerator::AdjustJump(int index, int addr){
+	codelist[index].Value = addr;
+}
+
+void PCodeGenerator::AdjustEntry(){
+	codelist[0].Value = codelist.size();
+}
+
+int PCodeGenerator::GetSize(){
+	return codelist.size();
+}
+
+int PCodeGenerator::Redirect(int index){
+	return codelist[index].Value;
+}

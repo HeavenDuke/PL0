@@ -52,14 +52,11 @@ class PCodeGenerator{
 		~PCodeGenerator(){};
 		void Add(int type, int gap, int value);
 		void Show();
-		int GetSize(){ return codelist.size(); }
-		int Redirect(int index){ return codelist[index].Value; }
-		void AdjustEntry(){
-			codelist[0].Value = codelist.size();
-		}
-		void AdjustJump(int index, int addr){
-			codelist[index].Value = addr;
-		}
+		int GetSize();
+		int Redirect(int index);
+		void AdjustEntry();
+		void AdjustJump(int index, int addr);
+		PCode GetCommand(int index);
 	private:
 		const char * Select(int value);
 		vector<PCode> codelist;

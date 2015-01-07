@@ -43,13 +43,14 @@ class GrammarAnalyzer{
 				//cout << e.what() << endl;
 				generator.Add(OPR, 0, 0);
 				Show();
+				Analysis();
 			}
 		}
 	private:
 		TokenAnalyzer analyzer;
 		SymTable table;
 		PCodeGenerator generator;
-		RuntimeStack stack;
+		RuntimeStack rstack;
 };
 
 #endif

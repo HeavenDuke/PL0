@@ -638,5 +638,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
 }
 
 void GrammarAnalyzer::Analysis(){
-
+	cout << "START PL/0" << endl;
+	rstack.Run(generator, table);
+	cout << "END PL/0" << endl;
 }

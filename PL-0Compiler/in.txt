@@ -15,7 +15,7 @@ begin
 	call mod;
 	while x<>0 do
 	    begin
-		    call swap;
+		    call swap;   
 			call mod
 		end;
 	g:=y;
