@@ -7,44 +7,51 @@
 #ifndef GRAMMARANALYZER_H
 #define GRAMMARANALYZER_H
 
-typedef struct Adjust{
-	int index;
-	int addr;
-	Adjust(int i, int a){
-		index = i;
-		addr = a;
-	}
-	Adjust(){
-		index = 0;
-		addr = 0;
-	}
-};
-
 class GrammarAnalyzer{
 	public:
 		GrammarAnalyzer();
 		~GrammarAnalyzer();
 		void Procedure();
+		
 		int SubProcedure(int level, bool isroot, char *name, int prev);
 		void Sentence(int level, int begin);
 		void Condition(int level);
 		void Expression(int level);
 		void Item(int level);
 		void Factor(int level);
+		
 		void Show(){
 			table.Display();
 			generator.Show();
 		}
+		
+		void ConstDeclaration(int level);
+		void VarDeclaration(int level, int &addr, int &variablenum);
+		void BeginDeclaration(int level, int begin);
+		void AssignDeclaration(int level);
+		void WriteDeclaration(int level);
+		void WhileDeclaration(int level, int begin);
+		void ReadDeclaration(int level);
+		void RepeatDeclaration(int level, int begin);
+		void IfDeclaration(int level, int begin);
+		void CallDeclaration(int level);
+		
+		void Test(set<int>s1, set<int>s2, int Type);
 		void Analysis();
 		void Run(){
 			try{
 				Procedure();
 				Show();
+				if (analyzer.HasError() == false){
+					//Analysis();
+				}
 			}
 			catch (exception e){
 				//cout << e.what() << endl;
 				Show();
-				//Analysis();
+				if (analyzer.HasError() == false){
+					//Analysis();
+				}
 			}
 		}
 	private:

@@ -19,12 +19,17 @@ class TokenAnalyzer
 		void Retreat();
 		const Atoken GetToken();
 		bool IsEndOfFile();
+		void Error(MyException m, bool canrun);
+		void Error(int type, bool canrun, char* msg);
+		void Display(){ global_container.Display(); }
+		bool HasError();
 		~TokenAnalyzer();
 
 		ErrorContainer global_container;
 	private:
 		ifstream in_file;
 		ofstream out_file;
+		bool ContainError;
 		int linenum;
 		int charindex;
 		char ch;

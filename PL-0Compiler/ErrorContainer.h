@@ -11,31 +11,36 @@ class ErrorContainer{
 		~ErrorContainer(){
 			Clear();
 		}
-		void Push(MyException e){
-			list.push_back(e);
+		void EnQueue(MyException e){
+			list.push(e);
 		}
-		bool Remove(){
-			if(list.empty()==false){
-				list.erase(list.begin());
-				return true;
-			}
-			return false;
+		MyException DeQueue(){
+			MyException e = list.front();
+			list.pop();
+			return e;
 		}
 		void Clear(){
-			list.clear();
+			while (list.empty() == false){
+				list.pop();
+			}
+		}
+		bool IsEmpty(){
+			return list.empty();
 		}
 		void Display(){
-			int index=0;
-			for(vector<MyException>::iterator iter=list.begin();iter!=list.end();iter++){
-				for(int j=0;j<iter->GetColumn()-index-1;j++){
-					cout<<' ';
+			while (list.empty() == false){
+				MyException e = list.front();
+				cout << "****        ";
+				for (int i = 0; i < e.GetColumn(); i++){
+					cout << ' ';
 				}
-				cout<<'^'<<iter->GetType()<<endl;
+				cout << "^" << e.GetType() << endl;
+				list.pop();
 			}
 		}
 
 	private:
-		vector<MyException> list;
+		queue<MyException> list;
 };
 
 #endif

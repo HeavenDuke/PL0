@@ -4,6 +4,7 @@ TokenAnalyzer::TokenAnalyzer(){
 	index=-1;
 	linenum=1;
 	charindex=1;
+	ContainError = false;
 	num=0;
 	LoadFile();
 	GetChar();
@@ -16,6 +17,10 @@ const Atoken TokenAnalyzer::GetToken(){
 	strcpy(atoken.Value, token);
 	atoken.Flag = id_code;
 	return atoken;
+}
+
+bool TokenAnalyzer::HasError(){
+	return ContainError;
 }
 
 void TokenAnalyzer::LoadFile(){
@@ -31,26 +36,33 @@ void TokenAnalyzer::LoadFile(){
 }
 
 void TokenAnalyzer::ParsePunctuation(){
+	int index = 0;
 	switch(ch){
 		case ',':
+			token[index++] = ',';
 			id_code=COMMA_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ';':
+			token[index++] = ';';
 			id_code=SEMICOLON_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '.':
+			token[index++] = '.';
 			id_code=DOT_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '=':
+			token[index++] = '=';
 			id_code=EQUAL_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ':':
+			token[index++] = ':';
 			GetChar();
 			if(ch=='='){
+				token[index++] = '=';
 				id_code=SET_OPERAND;
 					//cout<<"Operand : \':=\'"<<endl;
 			}
@@ -59,28 +71,35 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			break;
 		case '+':
+			token[index++] = '+';
 			id_code=PLUS_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '-':
+			token[index++] = '-';
 			id_code=MINUS_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '*':
+			token[index++] = '*';
 			id_code=MUL_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '/':
+			token[index++] = '/';
 			id_code=DIV_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '<':
+			token[index++] = '<';
 			GetChar();
 			if(ch=='='){
+				token[index++] = '=';
 				id_code=LEQUAL_OPERAND;
 					//cout<<"Operand : \'<=\'"<<endl;
 			}
 			else if(ch=='>'){
+				token[index++] = '>';
 				id_code=NEQUAL_OPERAND;
 					//cout<<"Operand : \'<>\'"<<endl;
 			}
@@ -91,8 +110,10 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			break;
 		case '>':
+			token[index++] = '>';
 			GetChar();
 			if(ch=='='){
+				token[index++] = '=';
 				id_code=MEQUAL_OPERAND;
 					//cout<<"Operand : \'>=\'"<<endl;
 			}
@@ -103,10 +124,12 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			break;
 		case '(':
+			token[index++] = '(';
 			id_code=LBRACKET_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ')':
+			token[index++] = ')';
 			id_code=RBRACKET_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
@@ -117,10 +140,9 @@ void TokenAnalyzer::ParsePunctuation(){
 
 void TokenAnalyzer::GetChar(){
 	if(charindex==1){
-		cout<<"Line "<<linenum<<": ";
+		cout << "Line " << setw(5) << right << linenum << ": ";
 	}
 	ch=code[++index];
-	cout<<ch;
 	charindex++;
 	if(ch=='\n'){
 		global_container.Display();
@@ -139,7 +161,7 @@ void TokenAnalyzer::Retreat(){
 }
 
 bool TokenAnalyzer::IsSpace(){
-	if (ch == ' ' || ch == '\t'){
+	if (ch == ' '){
 		return true;
 	}
 	return false;
@@ -155,22 +177,44 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
+		cout << ch;
 		GetChar();
 	}
 	if(IsAlpha()){
 		ParseString();
+		cout << token;
 	}
 	else if(IsNum()){
 		ParseNum();
+		cout << token;
 	}
 	else if(IsPunc()){
 		ParsePunctuation();
 		GetChar();
+		cout << token;
 	}
-	else{
-		//ERROR!
+	else if(!IsEndOfFile()){
+		while (IsEndOfFile() == false){
+			if (!IsSpace() && !IsLineEnd() && !IsAlpha() && !IsNum() && !IsPunc()){
+				Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
+			}
+			cout << ch;
+			GetChar();
+		}
+		throw exception("unidentified character!");
 	}
 	DisplayResult();
+}
+
+void TokenAnalyzer::Error(MyException e,bool canrun){
+	global_container.EnQueue(e);
+	if (canrun == false){
+		ContainError = canrun;
+	}
+}
+
+void TokenAnalyzer::Error(int type, bool canrun,char *msg){
+	global_container.EnQueue(MyException(type, linenum, charindex - strlen(token) - 2, msg));
 }
 
 void TokenAnalyzer::DisplayResult(){
@@ -233,20 +277,45 @@ bool TokenAnalyzer::IsPunc(){
 
 void TokenAnalyzer::ParseNum(){
 	int sum=0;
+	int index = 0;
+	bool overflow = false;
+	int begin = charindex;
 	while(IsNum()){
-		sum=sum*10+(ch-'0');
+		if (sum < (INT_MAX - (ch - '0')) / 10){
+			sum = sum * 10 + (ch - '0');
+			token[index++] = ch;
+		}
+		else{
+			overflow = true;
+		}
 		GetChar();
+	}
+	if (overflow == true){
+		sum = 0;
+		Error(MyException(NUMERIC_OVERFLOW, linenum, begin - 2, "这个数太大！"), false);
 	}
 	id_code=CONST_NUMBER;
 	num=sum;
 }
 
 void TokenAnalyzer::ParseString(){
+	bool overflow = false;
+	int begin = charindex;
 	int i=0;
 	bool PreCheckReserved=false;
 	while(IsAlpha()||(PreCheckReserved=IsNum())){
-		token[i++]=ch;
+		if (i < MAXN){
+			token[i++] = ch;
+		}
+		else{
+			overflow = true;
+		}
 		GetChar();
+	}
+	if (overflow == true){
+		memset(token, 0, sizeof(token));
+		strcpy(token, "#unidentified#");
+		Error(MyException(STRING_LENGTH_OVERFLOW, linenum, begin - 2, "标识符名称过长！"), false);
 	}
 	if(!PreCheckReserved){
 		id_code=IsReserved();

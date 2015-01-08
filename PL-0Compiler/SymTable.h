@@ -12,7 +12,7 @@ typedef struct Symbol{
 	int kind;
 	int adr;
 	int level;
-	Symbol(char *n, const int v, int a, int k, int l){
+	Symbol(const char *n, const int v, int a, int k, int l){
 		strcpy(name, n);
 		value = v;
 		kind = k;
