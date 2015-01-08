@@ -17,6 +17,8 @@
 #include<set>
 #include<list>
 
+#define MAXLEVEL 3
+
 #define BEGIN_RESERVED 1
 #define CALL_RESERVED 2
 #define CONST_RESERVED 3
@@ -84,6 +86,7 @@
 #define READ_UNIDENTIFIED 34
 #define READ_PROCEDURE 35
 #define SHOULD_BE_LEFT_BRACKET 36
+#define TOODEEP 37
 
 #define SUBPROCEDURE 1
 #define SENTENCE 2

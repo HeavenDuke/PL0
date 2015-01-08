@@ -1,17 +1,47 @@
 #include "GrammarAnalyzer.h"
 
 GrammarAnalyzer::GrammarAnalyzer(){
-	
+	declbegsys.insert(CONST_RESERVED);
+	declbegsys.insert(VAR_RESERVED);
+	declbegsys.insert(PROCEDURE_RESERVED);
+
+	statbegsys.insert(BEGIN_RESERVED);
+	statbegsys.insert(CALL_RESERVED);
+	statbegsys.insert(IF_RESERVED);
+	statbegsys.insert(WHILE_RESERVED);
+	statbegsys.insert(REPEAT_RESERVED);
+
+	facbegsys.insert(IDENTIFIER);
+	facbegsys.insert(CONST_NUMBER);
+	facbegsys.insert(LBRACKET_OPERAND);
 }
 
 GrammarAnalyzer::~GrammarAnalyzer(){
 
 }
 
+set<int> GrammarAnalyzer::Union(set<int> set1, set<int> set2){
+	set<int> res;
+	for each (int var in set1)
+	{
+		res.insert(var);
+	}
+	for each (int var in set2)
+	{
+		res.insert(var);
+	}
+	return res;
+}
+
 void GrammarAnalyzer::Procedure(){
+	set<int> nxtlev;
+	nxtlev = Union(nxtlev, declbegsys);
+	nxtlev = Union(nxtlev, statbegsys);
+	nxtlev.insert(DOT_OPERAND);
+
 	analyzer.Run();
 	generator.Add(JMP, 0, 0);
-	SubProcedure(0, true, "", -1);
+	SubProcedure(0, true, "", -1, nxtlev);
 	if (analyzer.GetToken().Flag == DOT_OPERAND){
 		generator.Add(OPR, 0, 0);
 	}
@@ -22,8 +52,12 @@ void GrammarAnalyzer::Procedure(){
 	}
 }
 
-void GrammarAnalyzer::Item(int level){
-	Factor(level);
+void GrammarAnalyzer::Item(int level, set<int> fsys){
+	set<int> nxtlev = fsys;
+	nxtlev.insert(MUL_OPERAND);
+	nxtlev.insert(DIV_OPERAND);
+
+	Factor(level, nxtlev);
 	while (analyzer.GetToken().Flag == MUL_OPERAND || analyzer.GetToken().Flag == DIV_OPERAND){
 		int value = analyzer.GetToken().Flag;
 		switch (value){
@@ -35,54 +69,59 @@ void GrammarAnalyzer::Item(int level){
 				break;
 		}
 		analyzer.Run();
-		Factor(level);
+		Factor(level, nxtlev);
 		generator.Add(OPR, 0, value);
 	}
 }
 
-void GrammarAnalyzer::Factor(int level){
-	if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
-		analyzer.Run();
-		Expression(level);
-		if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
+void GrammarAnalyzer::Factor(int level, set<int> fsys){
+	Test(facbegsys, fsys, CANNOT_START_WITH_THIS);
+	if (facbegsys.find(analyzer.GetToken().Flag) != facbegsys.end()){
+		if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
+			set<int> nxtlev = fsys;
+			nxtlev.insert(RBRACKET_OPERAND);
+			analyzer.Run();
+			Expression(level, nxtlev);
+			if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
+				analyzer.Run();
+			}
+			else{
+				analyzer.Error(MISSING_RIGHT_BRACKET, false, "漏右括号");
+			}
+		}
+		else if (analyzer.GetToken().Flag == CONST_NUMBER){
+			generator.Add(LIT, 0, analyzer.GetToken().Number);
+			analyzer.Run();
+		}
+		else if (analyzer.GetToken().Flag == IDENTIFIER){
+			int index = table.Locate(analyzer.GetToken().Value);
+			if (index >= 0){
+				Symbol sym = table.GetSymbol(index);
+				switch (sym.kind){
+				case CONSTANT:
+					generator.Add(LIT, 0, sym.value);
+					break;
+				case VARIABLE:
+					generator.Add(LOD, level - sym.level, sym.adr);
+					break;
+				case PROCEDURE:
+					analyzer.Error(CANNOT_HAVE_PROCEDURE, false, "表达式内不能有标识符");
+					break;
+				}
+			}
+			else{
+				analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
+			}
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_RIGHT_BRACKET, false, "漏右括号");
+			Test(fsys, facbegsys, CANNOT_AFTER_FACTOR);
+			//补救措施
 		}
-	}
-	else if (analyzer.GetToken().Flag == CONST_NUMBER){
-		generator.Add(LIT, 0, analyzer.GetToken().Number);
-		analyzer.Run();
-	}
-	else if (analyzer.GetToken().Flag == IDENTIFIER){
-		int index = table.Locate(analyzer.GetToken().Value);
-		if (index >= 0){
-			Symbol sym = table.GetSymbol(index);
-			switch (sym.kind){
-			case CONSTANT:
-				generator.Add(LIT, 0, sym.value);
-				break;
-			case VARIABLE:
-				generator.Add(LOD, level - sym.level, sym.adr);
-				break;
-			case PROCEDURE:
-				analyzer.Error(CANNOT_HAVE_PROCEDURE, false, "表达式内不能有标识符");
-				break;
-			}
-		}
-		else{
-			analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
-			//ERROR!
-		}
-		analyzer.Run();
-	}
-	else{
-		//补救措施
 	}
 }
 
-void GrammarAnalyzer::Expression(int level){
+void GrammarAnalyzer::Expression(int level, set<int> fsys){
 	int shift = 0;
 	if (analyzer.GetToken().Flag == PLUS_OPERAND || analyzer.GetToken().Flag == MINUS_OPERAND){
 		if (analyzer.GetToken().Flag == MINUS_OPERAND){
@@ -90,7 +129,10 @@ void GrammarAnalyzer::Expression(int level){
 		}
 		analyzer.Run();
 	}
-	Item(level);
+	set<int> nxtlev = fsys;
+	nxtlev.insert(PLUS_OPERAND);
+	nxtlev.insert(MINUS_OPERAND);
+	Item(level, nxtlev);
 	if (shift == 1){
 		generator.Add(OPR, 0, 1);
 	}
@@ -105,20 +147,30 @@ void GrammarAnalyzer::Expression(int level){
 				break;
 		}
 		analyzer.Run();
-		Item(level);
+		set<int> nxtlev = fsys;
+		nxtlev.insert(PLUS_OPERAND);
+		nxtlev.insert(MINUS_OPERAND);
+		Item(level, nxtlev);
 		generator.Add(OPR, 0, value);
 	}
 }
 
-void GrammarAnalyzer::Condition(int level){
+void GrammarAnalyzer::Condition(int level, set<int> fsys){
 	int relation = 0;
 	if (analyzer.GetToken().Flag == ODD_RESERVED){
 		analyzer.Run();
-		Expression(level);
+		Expression(level, fsys);
 		generator.Add(OPR, 0, ODD);
 	}
 	else{
-		Expression(level);
+		set<int> nxtlev = fsys;
+		nxtlev.insert(EQUAL_OPERAND);
+		nxtlev.insert(NEQUAL_OPERAND);
+		nxtlev.insert(LESS_OPERAND);
+		nxtlev.insert(MORE_OPERAND);
+		nxtlev.insert(MEQUAL_OPERAND);
+		nxtlev.insert(LEQUAL_OPERAND);
+		Expression(level, nxtlev);
 		switch (analyzer.GetToken().Flag){
 			case EQUAL_OPERAND:
 				relation = EQL;
@@ -144,7 +196,7 @@ void GrammarAnalyzer::Condition(int level){
 		}
 		if (relation != -1){
 			analyzer.Run();
-			Expression(level);
+			Expression(level, fsys);
 			generator.Add(OPR, 0, relation);
 		}
 		else{
@@ -153,33 +205,33 @@ void GrammarAnalyzer::Condition(int level){
 	}
 }
 
-void GrammarAnalyzer::Sentence(int level,int begin){
+void GrammarAnalyzer::Sentence(int level, int begin, set<int> fsys){
 	int index;
 	int addr1;
 	switch (analyzer.GetToken().Flag){
 		case IDENTIFIER:
-			AssignDeclaration(level);
+			AssignDeclaration(level ,fsys);
 			break;
 		case CALL_RESERVED:
-			CallDeclaration(level);
+			CallDeclaration(level, fsys);
 			break;
 		case BEGIN_RESERVED:
-			BeginDeclaration(level, begin);
+			BeginDeclaration(level, begin, fsys);
 			break;
 		case IF_RESERVED:
-			IfDeclaration(level, begin);
+			IfDeclaration(level, begin, fsys);
 			break;
 		case READ_RESERVED:
-			ReadDeclaration(level);
+			ReadDeclaration(level, fsys);
 			break;
 		case REPEAT_RESERVED:
-			RepeatDeclaration(level, begin);
+			RepeatDeclaration(level, begin, fsys);
 			break;
 		case WHILE_RESERVED:
-			WhileDeclaration(level,begin);
+			WhileDeclaration(level, begin, fsys);
 			break;
 		case WRITE_RESERVED:
-			WriteDeclaration(level);
+			WriteDeclaration(level, fsys);
 			break;
 		default:
 			break;
@@ -187,9 +239,12 @@ void GrammarAnalyzer::Sentence(int level,int begin){
 	
 }
 
-void GrammarAnalyzer::BeginDeclaration(int level,int begin){
+void GrammarAnalyzer::BeginDeclaration(int level, int begin, set<int> fsys){
 	analyzer.Run();
-	Sentence(level, begin);
+	set<int> nxtlev = fsys;
+	nxtlev.insert(SEMICOLON_OPERAND);
+	nxtlev.insert(END_RESERVED);
+	Sentence(level, begin, nxtlev);
 	while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 		if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 			analyzer.Run();
@@ -197,7 +252,7 @@ void GrammarAnalyzer::BeginDeclaration(int level,int begin){
 		else{
 			analyzer.Error(MISSING_SEMI_BETWEEN, false, "语句之间漏分号");
 		}
-		Sentence(level, begin);
+		Sentence(level, begin, nxtlev);
 	}
 	if (analyzer.GetToken().Flag == END_RESERVED){
 		analyzer.Run();
@@ -207,7 +262,7 @@ void GrammarAnalyzer::BeginDeclaration(int level,int begin){
 	}
 }
 
-void GrammarAnalyzer::CallDeclaration(int level){
+void GrammarAnalyzer::CallDeclaration(int level, set<int> fsys){
 	analyzer.Run();
 	if (analyzer.GetToken().Flag != IDENTIFIER){
 		analyzer.Error(IDENTIFIER_AFTER_CALL, false, "call后应为标识符");
@@ -231,9 +286,12 @@ void GrammarAnalyzer::CallDeclaration(int level){
 	}
 }
 
-void GrammarAnalyzer::IfDeclaration(int level,int begin){
+void GrammarAnalyzer::IfDeclaration(int level, int begin, set<int> fsys){
 	analyzer.Run();
-	Condition(level);
+	set<int> nxtlev = fsys;
+	nxtlev.insert(THEN_RESERVED);
+	nxtlev.insert(DO_RESERVED);
+	Condition(level, nxtlev);
 	generator.Add(JPC, 0, 0);
 	int index = generator.GetSize() - 1;
 	if (analyzer.GetToken().Flag == THEN_RESERVED){
@@ -242,21 +300,24 @@ void GrammarAnalyzer::IfDeclaration(int level,int begin){
 	else{
 		analyzer.Error(SHOULD_BE_THEN, false, "应为then");
 	}
-	Sentence(level, begin);
+	Sentence(level, begin, fsys);
 	if (analyzer.GetToken().Flag == ELSE_RESERVED){
 		generator.Add(JMP, 0, 0);
 		generator.AdjustJump(index, generator.GetSize());
 		index = generator.GetSize() - 1;
 		analyzer.Run();
-		Sentence(level, begin);
+		Sentence(level, begin, fsys);
 	}
 	generator.AdjustJump(index, generator.GetSize());
 }
 
-void GrammarAnalyzer::RepeatDeclaration(int level,int begin){
+void GrammarAnalyzer::RepeatDeclaration(int level, int begin, set<int> fsys){
 	analyzer.Run();
+	set<int> nxtlev = fsys;
+	nxtlev.insert(SEMICOLON_OPERAND);
+	nxtlev.insert(UNTIL_RESERVED);
 	int index = generator.GetSize();
-	Sentence(level, begin);
+	Sentence(level, begin, fsys);
 	while (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 		if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 			analyzer.Run();
@@ -265,10 +326,10 @@ void GrammarAnalyzer::RepeatDeclaration(int level,int begin){
 			analyzer.Error(MISSING_SEMI_BETWEEN, false, "语句之间漏分号");
 		}
 	}
-	Sentence(level, begin);
+	Sentence(level, begin, nxtlev);
 	if (analyzer.GetToken().Flag == UNTIL_RESERVED){
 		analyzer.Run();
-		Condition(level);
+		Condition(level, fsys); 
 		generator.Add(JPC, 0, index);
 	}
 	else{
@@ -276,7 +337,7 @@ void GrammarAnalyzer::RepeatDeclaration(int level,int begin){
 	}
 }
 
-void GrammarAnalyzer::ReadDeclaration(int level){
+void GrammarAnalyzer::ReadDeclaration(int level, set<int> fsys){
 	analyzer.Run();
 	if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
 		do{
@@ -313,10 +374,12 @@ void GrammarAnalyzer::ReadDeclaration(int level){
 	}
 }
 
-void GrammarAnalyzer::WhileDeclaration(int level,int begin){
+void GrammarAnalyzer::WhileDeclaration(int level, int begin, set<int> fsys){
 	analyzer.Run();
 	int addr1 = generator.GetSize();
-	Condition(level);
+	set<int> nxtlev = fsys;
+	nxtlev.insert(DO_RESERVED);
+	Condition(level, nxtlev);
 	generator.Add(JPC, 0, 0);
 	if (analyzer.GetToken().Flag == DO_RESERVED){
 		analyzer.Run();
@@ -325,12 +388,12 @@ void GrammarAnalyzer::WhileDeclaration(int level,int begin){
 		analyzer.Error(SHOULD_BE_DO, false, "应为do");
 	}
 	int index = generator.GetSize() - 1;
-	Sentence(level, begin);
+	Sentence(level, begin, fsys);
 	generator.Add(JMP, 0, addr1);
 	generator.AdjustJump(index, generator.GetSize());
 }
 
-void GrammarAnalyzer::AssignDeclaration(int level){
+void GrammarAnalyzer::AssignDeclaration(int level, set<int> fsys){
 	int index = table.Locate(analyzer.GetToken().Value);
 	if (index >= 0){
 		Symbol s = table.GetSymbol(index);
@@ -342,7 +405,8 @@ void GrammarAnalyzer::AssignDeclaration(int level){
 			else{
 				analyzer.Run();
 			}
-			Expression(level);
+			set<int> nxtlev = fsys;
+			Expression(level, nxtlev);
 			generator.Add(STO, level - s.level, s.adr);
 		}
 		else{
@@ -354,12 +418,15 @@ void GrammarAnalyzer::AssignDeclaration(int level){
 	}
 }
 
-void GrammarAnalyzer::WriteDeclaration(int level){
+void GrammarAnalyzer::WriteDeclaration(int level, set<int> fsys){
 	analyzer.Run();
 	if (analyzer.GetToken().Flag == LBRACKET_OPERAND){
 		do{
 			analyzer.Run();
-			Expression(level);
+			set<int> nxtlev = fsys;
+			nxtlev.insert(RBRACKET_OPERAND);
+			nxtlev.insert(COMMA_OPERAND);
+			Expression(level, nxtlev);
 			generator.Add(WRT, 0, 0);
 		} while (analyzer.GetToken().Flag == COMMA_OPERAND);
 		if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
@@ -374,8 +441,12 @@ void GrammarAnalyzer::WriteDeclaration(int level){
 	}
 }
 
-int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
+int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, set<int> fsys){
+	set<int> nxtlev;
 	int index = 0;
+	if (level > MAXLEVEL){
+		analyzer.Error(TOODEEP, false, "嵌套层次过高");
+	}
 	if (!isroot){
 		generator.Add(JMP, 0, generator.GetSize() + 1);
 		index = generator.GetSize() - 1;
@@ -414,8 +485,6 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
 	while (analyzer.GetToken().Flag == PROCEDURE_RESERVED){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == IDENTIFIER){
-			char *sname = new char[255];
-			strcpy(sname, analyzer.GetToken().Value);
 			Symbol s(analyzer.GetToken().Value, 0, generator.GetSize(), PROCEDURE, level);
 			if (table.Check(s) == false){
 				table.Add(s);
@@ -434,29 +503,40 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name,int prev){
 		else{
 			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
 		}
-		addr0 = SubProcedure(level + 1, false, "", index);
+		nxtlev = fsys;
+		nxtlev.insert(SEMICOLON_OPERAND);
+		addr0 = SubProcedure(level + 1, false, "", index, nxtlev);
 		if (!isroot){
 			generator.AdjustJump(prev, addr0 + 1);
 		}
 		if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 			generator.Add(OPR, 0, 0);
 			analyzer.Run();
+			nxtlev = statbegsys;
+			nxtlev.insert(IDENTIFIER);
+			nxtlev.insert(PROCEDURE_RESERVED);
+			Test(nxtlev, fsys, INCORRECT_SYMBOL_AFTER_PROCEDURE);
 		}
 		else{
-			//cout << 25 << endl;
-			//ERROR!
+			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
 		}
 	}
+
+	nxtlev = statbegsys;
+	nxtlev.insert(IDENTIFIER);
+	Test(nxtlev, declbegsys, SHOULD_BE_SENTENCE);
 			
 	if (isroot){
 		generator.AdjustEntry();
 	}
 	generator.Add(INT, 0, variablenum);
-	Sentence(level, variablenum);
+	Sentence(level, variablenum, nxtlev);
 	if (prev >= 0){
 		generator.AdjustJump(prev, generator.GetSize() + 1);
 	}
-	Test(set<int>(), set<int>(), SUBPROCEDURE);
+
+	nxtlev.clear();
+	Test(fsys, nxtlev, INCORRECT_AFTER_SENTENCE_INSIDE_PROCEDURE);
 	return generator.GetSize();
 }
 
@@ -514,71 +594,21 @@ void GrammarAnalyzer::Analysis(){
 	rstack.Run(generator, table);
 	//cout << "END PL/0" << endl;
 }
-void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int Type){
-	switch (Type){
-		case SUBPROCEDURE:
-			
-			break;
-		case SENTENCE:
-			if (strcmp(analyzer.GetToken().Value, ".") == 0){
 
-			}
-			else if (strcmp(analyzer.GetToken().Value, ";") == 0){
+char *GetMessage(int errcode){
+	char *res = new char[MAXN];
+	switch (errcode){
+		
+	}
+	return res;
+}
 
-			}
-			else if (strcmp(analyzer.GetToken().Value, "end") == 0){
-
-			}
-			else if (strcmp(analyzer.GetToken().Value, "else") == 0){
-
-			}
-			else{
-
-			}
-			break;
-		case CONDITION:
-			if (strcmp(analyzer.GetToken().Value, "then") == 0){
-
-			}
-			else if (strcmp(analyzer.GetToken().Value, "do") == 0){
-
-			}
-			else{
-
-			}
-			break;
-		case EXPRESSION:
-			if (strcmp(analyzer.GetToken().Value, "") == 0){
-
-			}
-			else if (strcmp(analyzer.GetToken().Value, ".") == 0){
-
-			}
-			else{
-
-			}
-			break;
-		case FACTOR:
-			if (strcmp(analyzer.GetToken().Value, ".") == 0){
-
-			}
-			else if (strcmp(analyzer.GetToken().Value, ".") == 0){
-
-			}
-			else{
-
-			}
-			break;
-		case ITEM:
-			if (strcmp(analyzer.GetToken().Value, ".") == 0){
-
-			}
-			else if (strcmp(analyzer.GetToken().Value, ".") == 0){
-
-			}
-			else{
-
-			}
-			break;
+void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
+	if (s1.find(analyzer.GetToken().Flag) == s1.end()){
+		analyzer.Error(errcode, false, GetMessage(errcode));
+		s1 = Union(s1, s2);
+		while (s1.find(analyzer.GetToken().Flag) == s1.end()){
+			analyzer.Run();
+		}
 	}
 }
