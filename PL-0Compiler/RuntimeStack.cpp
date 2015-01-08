@@ -1,8 +1,9 @@
 #include "RuntimeStack.h"
 
 RuntimeStack::RuntimeStack(){
-	base = 0;
-	top = 0;
+	pc = 0;
+	sp = 0;
+	bp = 0;
 }
 
 RuntimeStack::~RuntimeStack(){
@@ -10,164 +11,135 @@ RuntimeStack::~RuntimeStack(){
 }
 
 void RuntimeStack::Push(Piece p){
-	dst[top++] = p;
+	dst[sp++] = p;
 }
 
 Piece RuntimeStack::Pop(){
-	return dst[--top];
+	return dst[--sp];
 }
 
 int RuntimeStack::GetSize(){
-	return top;
+	return sp;
+}
+
+void RuntimeStack::Show(){
+	cout << "**************************************" << endl;
+	for (int i = 0; i < sp; i++){
+		cout << dst[i].value<<endl;
+	}
+	cout << "**************************************" << endl;
 }
 
 void RuntimeStack::Run(PCodeGenerator g, SymTable t){
-	int index = 0;
-	int value1;
-	int value2;
-	int begin;
+	cout << "START PL/0" << endl; 
 	Piece p;
-	Push(Piece(0, UN, 0));
-	Push(Piece(0, UN, 0));
-	Push(Piece(0, UN, 0));
-	base = 0;
-	while (index < g.GetSize()){
-		cout << index << endl;
-		PCode pc = g.GetCommand(index);
-		switch (pc.Type){
+	do{
+		//cout << pc << endl;
+		PCode index = g.GetCommand(pc++);
+		switch (index.Type){
 			case LIT:
-				Push(Piece(GetSize(), DATA, pc.Value));
-				index++;
+				Push(Piece(GetSize(), DATA, index.Value));
 				break;
 			case OPR:
-				switch (pc.Value){
+				switch (index.Value){
 					case RETURN:
-						top = base;
-						index = dst[base + 2].value;
-						base = dst[base + 1].value;
+						sp = bp;
+						pc = dst[sp + 2].value;
+						bp = dst[sp + 1].value;
 						break;
 					case NEG:
-						p = Pop();
-						p.value *= -1;
-						Push(p);
+						dst[sp - 1].value *= -1;
 						break;
 					case ADD:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 + value2));
+						Pop();
+						dst[sp - 1].value += dst[sp].value;
 						break;
 					case SUB:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 - value2));
+						Pop();
+						dst[sp - 1].value -= dst[sp].value;
 						break;
 					case MUL:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 * value2));
+						Pop();
+						dst[sp - 1].value *= dst[sp].value;
 						break;
 					case DIV:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 / value2));
+						Pop();
+						dst[sp - 1].value /= dst[sp].value;
 						break;
 					case ODD:
-						p = Pop();
-						p.value %= 2;
-						Push(p);
+						dst[sp - 1].value %= 2;
 						break;
 					case EQL:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 == value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value == dst[sp].value);
 						break;
 					case NEQ:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 != value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value != dst[sp].value);
 						break;
 					case LSS:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 < value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value < dst[sp].value);
 						break;
 					case GTR:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 > value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value > dst[sp].value);
 						break;
 					case LEQ:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 <= value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value <= dst[sp].value);
 						break;
 					case GEQ:
-						value1 = Pop().value;
-						value2 = Pop().value;
-						Push(Piece(GetSize(), DATA, value1 >= value2));
+						Pop();
+						dst[sp - 1].value = (dst[sp - 1].value >= dst[sp].value);
 						break;
 				}
-				index++;
 				break;
 			case LOD:
-				begin = base;
-				for (int i = 0; i < pc.Gap; i++){
-					begin = dst[begin].value;
-				}
-				Push(Piece(GetSize(), DATA, dst[begin + pc.Value].value));
-				index++;
+				Push(Piece(sp, DATA, dst[Base(index.Gap, bp) + index.Value].value));
 				break;
 			case STO://OVER
-				begin = base;
-				for (int i = 0; i < pc.Gap; i++){
-					begin = dst[begin].value;
-				}
-				Push(Piece(GetSize(), DATA, dst[top - 1].value));
-				index++;
+				Pop();
+				dst[Base(index.Gap, bp) + index.Value].value = dst[sp].value;
 				break;
 			case CAL:
-				Push(Piece(GetSize(), SL, Base(t, index)));//TODO:确定SL指向
-				Push(Piece(GetSize(), DL, base));
-				Push(Piece(GetSize(), RA, index + 1));
-				index = pc.Value;
-				base = GetSize() - 3;
+				dst[sp].value = Base(index.Gap, bp);
+				dst[sp + 1].value = bp;
+				dst[sp + 2].value = pc;
+				bp = sp;
+				pc = index.Value;
 				break;
 			case INT://OVER
-				for (int i = 0; i < pc.Value - 3; i++){
-					Push(Piece(GetSize(), DATA, 0));
-				}
-				index++;
+				sp += index.Value;
 				break;
 			case JMP://OVER
-				index = pc.Value;
+				pc = index.Value;
 				break;
 			case JPC://OVER
-				if (dst[top - 1].value == 0){
-					index = pc.Value;
-				}
-				else{
-					index++;
+				Pop();
+				if (dst[sp].value == 0){
+					pc = index.Value;
 				}
 				break;
 			case RED://OVER
 				int result;
 				cout << "请输入：";
-				cin >> result;
-				begin = base;
-				for (int i = 0; i < pc.Gap; i++){
-					begin = dst[begin].value;
-				}
-				Push(Piece(GetSize(), DATA, result));
-				index++;
+				cin >> dst[Base(index.Gap, bp) + index.Value].value;
 				break;
 			case WRT://OVER
-				cout << dst[top - 1].value << endl;
-				index++;
+				cout << dst[sp - 1].value << endl;
+				Pop();
 				break;
 		}
-	}
+		//Show();
+	}while (pc != 0);
+	cout << "END PL/0" << endl;
 }
 
-int RuntimeStack::Base(SymTable table, int index){
-	return 0;
+int RuntimeStack::Base(int l, int b){
+	while (l > 0){
+		b = dst[b].value;
+		l--;
+	}
+	return b;
 }

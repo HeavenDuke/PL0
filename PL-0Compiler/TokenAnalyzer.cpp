@@ -145,6 +145,7 @@ void TokenAnalyzer::GetChar(){
 	ch=code[++index];
 	charindex++;
 	if(ch=='\n'){
+		cout << endl;
 		global_container.Display();
 		global_container.Clear();
 		charindex=1;
@@ -177,7 +178,9 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
-		cout << ch;
+		if (!IsLineEnd()){
+			cout << ch;
+		}
 		GetChar();
 	}
 	if(IsAlpha()){

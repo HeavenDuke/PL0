@@ -33,11 +33,13 @@ class RuntimeStack{
 		void Push(Piece p);
 		Piece Pop();
 		int GetSize();
+		void Show();
 		void Run(PCodeGenerator generator, SymTable table);
-		int Base(SymTable table, int index);
+		int Base(int l, int b);
 	private:
-		int top;
-		int base;
+		int pc,
+			bp,
+			sp;
 		Piece dst[MAXHASH];
 };
 

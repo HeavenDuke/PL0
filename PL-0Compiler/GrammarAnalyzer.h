@@ -43,14 +43,14 @@ class GrammarAnalyzer{
 				Procedure();
 				Show();
 				if (analyzer.HasError() == false){
-					//Analysis();
+					Analysis();
 				}
 			}
 			catch (exception e){
 				//cout << e.what() << endl;
 				Show();
 				if (analyzer.HasError() == false){
-					//Analysis();
+					Analysis();
 				}
 			}
 		}
