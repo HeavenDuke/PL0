@@ -11,7 +11,7 @@ TokenAnalyzer::TokenAnalyzer(){
 }
 
 bool TokenAnalyzer::IsEndOfFile(){
-	return (index>=code.length()-1&&code[index]=='#');
+	return (index>=code.length());
 }
 
 void TokenAnalyzer::LoadFile(){
@@ -98,7 +98,6 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			else{
 				id_code=LESS_OPERAND;
-				//cout<<"Operand : \'<\'"<<endl;
 			}
 			break;
 		case '>':
@@ -106,11 +105,9 @@ void TokenAnalyzer::ParsePunctuation(){
 				GetChar();
 				if(ch=='='){
 					id_code=MEQUAL_OPERAND;
-					//cout<<"Operand : \'>=\'"<<endl;
 				}
 				else{
 					id_code=MORE_OPERAND;
-					//cout<<"Operand : \'>\'"<<endl;
 					if(index>0){
 						Retreat();
 					}
@@ -118,16 +115,14 @@ void TokenAnalyzer::ParsePunctuation(){
 			}
 			else{
 				id_code=MORE_OPERAND;
-				//cout<<"Operand : \'>\'"<<endl;
 			}
 			break;
 		case '(':
 			id_code=LBRACKET_OPERAND;
-			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
+
 			break;
 		case ')':
 			id_code=RBRACKET_OPERAND;
-			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		default:
 			break;
