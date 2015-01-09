@@ -21,7 +21,6 @@ class GrammarAnalyzer{
 		void Factor(int level, set<int> fsys);
 		set<int> Union(set<int> set1, set<int> set2);
 		void Show(){
-			table.Display();
 			generator.Show();
 		}
 		
@@ -38,22 +37,7 @@ class GrammarAnalyzer{
 		
 		void Test(set<int>s1, set<int>s2, int Type);
 		void Analysis();
-		void Run(){
-			try{
-				Procedure();
-				Show();
-				if (analyzer.HasError() == false){
-					Analysis();
-				}
-			}
-			catch (exception e){
-				//cout << e.what() << endl;
-				Show();
-				if (analyzer.HasError() == false){
-					Analysis();
-				}
-			}
-		}
+		void Run();
 	private:
 		set<int> declbegsys;
 		set<int> statbegsys;

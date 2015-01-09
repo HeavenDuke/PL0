@@ -22,6 +22,7 @@ class TokenAnalyzer
 		void Error(MyException m, bool canrun);
 		void Error(int type, bool canrun, char* msg);
 		void Display(){ global_container.Display(); }
+		void DisplayResult();
 		bool HasError();
 		~TokenAnalyzer();
 
@@ -52,8 +53,6 @@ class TokenAnalyzer
 		void ParseString();
 		void ParsePunctuation();
 		void Error(char *);
-
-		void DisplayResult();
 };
 
 #endif

@@ -19,6 +19,9 @@ class ErrorContainer{
 			list.pop();
 			return e;
 		}
+		MyException GetFront(){
+			return list.front();
+		}
 		void Clear(){
 			while (list.empty() == false){
 				list.pop();

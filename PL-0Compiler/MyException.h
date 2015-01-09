@@ -8,7 +8,7 @@ class MyException{
 			type=t;
 			row=r;
 			column=c;
-			msg=message;
+			message = msg;
 		};
 		void show(){
 			

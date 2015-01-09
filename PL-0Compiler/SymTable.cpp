@@ -14,25 +14,50 @@ void SymTable::Add(Symbol s){
 }
 
 bool SymTable::Check(Symbol s){
-	vector<Symbol>::iterator it = find(SymbolTable.begin(), SymbolTable.end(), s);
-	if (it != SymbolTable.end()){
-		return true;
-	}
-	else{
-		return false;
+	vector<Symbol>::reverse_iterator iter;
+	int level = s.level;
+	switch (s.kind){
+		case PROCEDURE:
+			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
+				if (iter->level == level){
+					if (iter->kind == PROCEDURE){
+						level--;
+					}
+				}
+				if (strcmp(iter->name, s.name) == 0){
+					return false;
+				}
+			}
+		default:
+			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
+				if (strcmp(iter->name, s.name) == 0 && level == s.level){
+					return true;
+				}
+				if (iter->kind == PROCEDURE){
+					level--;
+				}
+			}
+			level = s.level;
+				//对于外层，同名，但是不同类会报错
+				//同名且同类会被覆盖
+			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
+				if (strcmp(iter->name, s.name) == 0 && iter->level == level){
+					if (iter->kind != s.kind){
+						return true;
+					}
+					else{
+						return false;
+					}
+				}
+				if (iter->kind == PROCEDURE){
+					level--;
+				}
+			}
+			return false;
+			break;
 	}
 }
-/*int SymTable::Locate(const char *name,int level,const char* proname){
-	int index = SymbolTable.size() - 1;
-	for (vector<Symbol>::reverse_iterator iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
-		if (strcmp(name, iter->name) == 0){
-			if(iter->level<
-				return index;
-		}
-		index--;
-	}
-	return -1;
-}*/
+
 int SymTable::Locate(const char *name){
 	int index = SymbolTable.size() - 1;
 	for (vector<Symbol>::reverse_iterator iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){

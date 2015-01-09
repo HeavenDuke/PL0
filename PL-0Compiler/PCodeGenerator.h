@@ -48,7 +48,7 @@ typedef struct PCode{
 
 class PCodeGenerator{
 	public:
-		PCodeGenerator(){}
+		PCodeGenerator(){};
 		~PCodeGenerator(){};
 		void Add(int type, int gap, int value);
 		void Show();

@@ -46,9 +46,8 @@ void GrammarAnalyzer::Procedure(){
 		generator.Add(OPR, 0, 0);
 	}
 	else{
-		analyzer.Error(SHOULD_BE_DOT, true, "应该为句号");
+		analyzer.Error(SHOULD_BE_DOT, false, "应该为句号");
 		analyzer.Display();
-		//ERROR!
 	}
 }
 
@@ -116,7 +115,6 @@ void GrammarAnalyzer::Factor(int level, set<int> fsys){
 		}
 		else{
 			Test(fsys, facbegsys, CANNOT_AFTER_FACTOR);
-			//补救措施
 		}
 	}
 }
@@ -279,7 +277,6 @@ void GrammarAnalyzer::CallDeclaration(int level, set<int> fsys){
 			}
 			else{
 				analyzer.Error(CANNOT_REFER, false, "不可调用常量或变量");
-				//ERROR
 			}
 		}
 		analyzer.Run();
@@ -400,7 +397,7 @@ void GrammarAnalyzer::AssignDeclaration(int level, set<int> fsys){
 		if (s.kind == VARIABLE){
 			analyzer.Run();
 			if (analyzer.GetToken().Flag != SET_OPERAND){
-				analyzer.Error(SHOULD_BE_SET, true, "应该为赋值运算符:=");
+				analyzer.Error(SHOULD_BE_SET, false, "应该为赋值运算符:=");
 			}
 			else{
 				analyzer.Run();
@@ -491,7 +488,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 				analyzer.Run();
 			}
 			else{
-				throw exception("nanni!");
+				analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
 			}
 		}
 		else{
@@ -548,7 +545,7 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == SET_OPERAND || analyzer.GetToken().Flag == EQUAL_OPERAND){
 			if (analyzer.GetToken().Flag == SET_OPERAND){
-				analyzer.Error(EQUAL_NOT_SET, true, "应该是=而不是:=");
+				analyzer.Error(EQUAL_NOT_SET, false, "应该是=而不是:=");
 			}
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == CONST_NUMBER){
@@ -558,7 +555,7 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 					analyzer.Run();
 				}
 				else{
-					throw exception("nanni!");
+					analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
 				}
 			}
 			else{
@@ -572,6 +569,13 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 	else{
 		analyzer.Error(IDENTIFIER_AFTER_CVP, false, "const,var,procedure后应为标识符");
 	}
+	set<int> nxtlev;
+	nxtlev.insert(SEMICOLON_OPERAND);
+	nxtlev.insert(COMMA_OPERAND);
+	nxtlev.insert(VAR_RESERVED);
+	nxtlev.insert(PROCEDURE_RESERVED);
+	nxtlev = Union(nxtlev, statbegsys);
+	Test(nxtlev, set<int>(), INCORRECT_AFTER_SENTENCE_INSIDE_PROCEDURE);
 }
 
 void GrammarAnalyzer::VarDeclaration(int level, int &addr, int &variablenum){
@@ -584,21 +588,117 @@ void GrammarAnalyzer::VarDeclaration(int level, int &addr, int &variablenum){
 			analyzer.Run();
 		}
 		else{
-			throw exception("nanni!");
+			analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
 		}
 	}
 }
 
 void GrammarAnalyzer::Analysis(){
-	//cout << "START PL/0" << endl;
 	rstack.Run(generator, table);
-	//cout << "END PL/0" << endl;
 }
 
 char *GetMessage(int errcode){
 	char *res = new char[MAXN];
 	switch (errcode){
-		
+		case EQUAL_NOT_SET:
+			strcpy(res, "应是=而不是:=");
+			break;
+		case NUMBER_AFTER_EQUAL:
+			strcpy(res, "=后应为数");
+			break;
+		case EQUAL_AFTER_IDENTIFIER:
+			strcpy(res, "标识符后应为=");
+			break;
+		case IDENTIFIER_AFTER_CVP:
+			strcpy(res, "const,var,procedure后应为标识符");
+			break;
+		case MISSING_COMMA_OR_SEMI:
+			strcpy(res, "漏掉逗号或分号");
+			break;
+		case INCORRECT_SYMBOL_AFTER_PROCEDURE:
+			strcpy(res, "过程说明后的符号不正确");
+			break;
+		case SHOULD_BE_SENTENCE:
+			strcpy(res, "应为语句");
+			break;
+		case INCORRECT_AFTER_SENTENCE_INSIDE_PROCEDURE:
+			strcpy(res, "程序体内语句部分后面的符号不正确");
+			break;
+		case SHOULD_BE_DOT:
+			strcpy(res, "应为句号");
+			break;
+		case MISSING_SEMI_BETWEEN:
+			strcpy(res, "语句之间漏分号");
+			break;
+		case UNKNOWN_IDENTIFIER:
+			strcpy(res, "标识符未说明");
+			break;
+		case CANNOT_ASSIGN:
+			strcpy(res, "不可向常量或过程赋值");
+			break;
+		case SHOULD_BE_SET:
+			strcpy(res, "应为赋值运算符:=");
+			break;
+		case IDENTIFIER_AFTER_CALL:
+			strcpy(res, "call后应为标识符");
+			break;
+		case CANNOT_REFER:
+			strcpy(res, "不可调用常量或变量");
+			break;
+		case SHOULD_BE_THEN:
+			strcpy(res, "应为then");
+			break;
+		case SHOULD_BE_END_OR_SEMI:
+			strcpy(res, "应为分号或end");
+			break;
+		case SHOULD_BE_DO:
+			strcpy(res, "应为do");
+			break;
+		case INCORRECT_AFTER_SENTENCE:
+			strcpy(res, "语句后的符号不正确");
+			break;
+		case SHOULD_BE_RELATION:
+			strcpy(res, "应为关系运算符");
+			break;
+		case CANNOT_HAVE_PROCEDURE:
+			strcpy(res, "表达式内不可有过程标识符");
+			break;
+		case MISSING_RIGHT_BRACKET:
+			strcpy(res, "漏右括号");
+			break;
+		case CANNOT_AFTER_FACTOR:
+			strcpy(res, "因子后不可为此符号");
+			break;
+		case CANNOT_START_WITH_THIS:
+			strcpy(res, "表达式不能以此符号开始");
+			break;
+		case UNIDENTIFIED_CHARACTER:
+			strcpy(res, "未识别的字符");
+			break;
+		case COLON_WITHOUT_EQUAL:
+			strcpy(res, "冒号后应紧跟等号");
+			break;
+		case NUMERIC_OVERFLOW:
+			strcpy(res, "这个数太大");
+			break;
+		case STRING_LENGTH_OVERFLOW:
+			strcpy(res, "标识符名称过长");
+			break;
+		case READ_CONST:
+			strcpy(res, "Read的结果不可写入常量");
+			break;
+		case READ_UNIDENTIFIED:
+			strcpy(res, "Read写入未被定义的变量");
+			break;
+		case SHOULD_BE_LEFT_BRACKET:
+			strcpy(res, "应该为左括号");
+			break;
+		case TOODEEP:
+			strcpy(res, "程序嵌套过深");
+			break;
+		case DUPLICATE_DECLARATION:
+			strcpy(res, "重复定义的常量、变量或过程!");
+			break;
 	}
 	return res;
 }
@@ -609,6 +709,25 @@ void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
 		s1 = Union(s1, s2);
 		while (s1.find(analyzer.GetToken().Flag) == s1.end()){
 			analyzer.Run();
+		}
+	}
+}
+
+void GrammarAnalyzer::Run(){
+	try{
+		Procedure();
+		analyzer.DisplayResult();
+		Show();
+		if (analyzer.HasError() == false){
+			Analysis();
+		}
+	}
+	catch (exception e){
+		
+		cout << e.what() << endl;
+		Show();
+		if (analyzer.HasError() == false){
+			Analysis();
 		}
 	}
 }

@@ -24,8 +24,26 @@ bool TokenAnalyzer::HasError(){
 }
 
 void TokenAnalyzer::LoadFile(){
-	in_file.open("in.txt",ios::in);
-	out_file.open("out.txt",ios::out);
+	string path_in;
+	string path_out;
+	do{
+		cout << "请指定输入文件路径:";
+		cin >> path_in;
+		in_file.open(path_in, ios::in);
+		if (!in_file){
+			cout << "路径不合法或文件不存在，请重新输入!";
+		}
+	} while (!in_file);
+	do{
+		cout << "请指定输入文件路径:";
+		cin >> path_out;
+		out_file.open(path_out, ios::out);
+		if (!out_file){
+			cout << "路径不合法或文件不存在，请重新输入!";
+		}
+	} while (!out_file);
+	freopen(path_in.c_str(), "r", stdin);
+	freopen(path_out.c_str(), "w", stdout);
 	code.clear();
 	char temp;
 	while((temp=in_file.get())!=EOF){
@@ -139,15 +157,9 @@ void TokenAnalyzer::ParsePunctuation(){
 }
 
 void TokenAnalyzer::GetChar(){
-	if(charindex==1){
-		cout << "Line " << setw(5) << right << linenum << ": ";
-	}
 	ch=code[++index];
 	charindex++;
 	if(ch=='\n'){
-		cout << endl;
-		global_container.Display();
-		global_container.Clear();
 		charindex=1;
 		linenum++;
 	}
@@ -178,56 +190,61 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
-		if (!IsLineEnd()){
-			cout << ch;
-		}
 		GetChar();
 	}
 	if(IsAlpha()){
 		ParseString();
-		cout << token;
 	}
 	else if(IsNum()){
 		ParseNum();
-		cout << token;
 	}
 	else if(IsPunc()){
 		ParsePunctuation();
 		GetChar();
-		cout << token;
 	}
 	else if(!IsEndOfFile()){
 		while (IsEndOfFile() == false){
 			if (!IsSpace() && !IsLineEnd() && !IsAlpha() && !IsNum() && !IsPunc()){
 				Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
 			}
-			cout << ch;
 			GetChar();
 		}
 		throw exception("unidentified character!");
 	}
-	DisplayResult();
 }
 
 void TokenAnalyzer::Error(MyException e,bool canrun){
 	global_container.EnQueue(e);
 	if (canrun == false){
-		ContainError = canrun;
+		ContainError = !canrun;
 	}
 }
 
 void TokenAnalyzer::Error(int type, bool canrun,char *msg){
 	global_container.EnQueue(MyException(type, linenum, charindex - strlen(token) - 2, msg));
+	if (canrun == false){
+		ContainError = !canrun;
+	}
 }
 
 void TokenAnalyzer::DisplayResult(){
-	/*cout <<"code: "<<id_code<<endl;
-	cout << "number: " << num << endl;
-	cout <<"token: "<<token<<endl;*/
-
-	out_file << "code: " << id_code << endl;
-	out_file << "number: " << num << endl;
-	out_file << "token: " << token << endl;
+	int line = 1;
+	string temp = code;
+	while (temp.find("\n") != temp.npos){
+		cout << "Line " << setw(5) << right << line << ": " << temp.substr(0, temp.find("\n")) << endl;
+		temp.erase(0, temp.find("\n") + 1);
+		while (global_container.IsEmpty() == false && global_container.GetFront().GetRow() == line){
+			MyException exp = global_container.DeQueue();
+			cout << "**** " << setw(7 + exp.GetColumn() + 1) << right << "^" << exp.GetType() << ":" << exp.what() << endl;
+		}
+		line++;
+	}
+	cout << "Line " << setw(5) << right << line << ": " << temp.substr(0, temp.find("\n")) << endl;
+	while (global_container.IsEmpty() == false && global_container.GetFront().GetRow() == line){
+		MyException exp = global_container.DeQueue();
+		cout << "**** " << setw(7 + exp.GetColumn() + 1) << right << "^" << exp.GetType() << ":" << exp.what() << endl;
+	}
+	line++;
 }
 
 void TokenAnalyzer::Error(char *s){
