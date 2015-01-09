@@ -1,148 +1,172 @@
 #include "TokenAnalyzer.h"
 
 TokenAnalyzer::TokenAnalyzer(){
-	global_conteiner=ErrorContainer();
 	index=-1;
 	linenum=1;
 	charindex=1;
+	ContainError = false;
 	num=0;
 	LoadFile();
 	GetChar();
 }
 
-bool TokenAnalyzer::IsEndOfFile(){
-	return (index>=code.length());
+const Atoken TokenAnalyzer::GetToken(){
+	Atoken atoken;
+	atoken.Number = num;
+	memset(atoken.Value, 0, sizeof(atoken.Value));
+	strcpy(atoken.Value, token);
+	atoken.Flag = id_code;
+	return atoken;
+}
+
+bool TokenAnalyzer::HasError(){
+	return ContainError;
 }
 
 void TokenAnalyzer::LoadFile(){
-	infile.open("in.txt",ios::in);
-	outfile.open("out.txt",ios::out);
+	string path_in;
+	string path_out;
+	do{
+		cout << "请指定输入文件路径:";
+		cin >> path_in;
+		in_file.open(path_in, ios::in);
+		if (!in_file){
+			cout << "路径不合法或文件不存在，请重新输入!";
+		}
+	} while (!in_file);
+	do{
+		cout << "请指定输入文件路径:";
+		cin >> path_out;
+		out_file.open(path_out, ios::out);
+		if (!out_file){
+			cout << "路径不合法或文件不存在，请重新输入!";
+		}
+	} while (!out_file);
+	freopen(path_in.c_str(), "r", stdin);
+	freopen(path_out.c_str(), "w", stdout);
 	code.clear();
 	char temp;
-	while((temp=infile.get())!=EOF){
+	while((temp=in_file.get())!=EOF){
 		code+=temp;
 	}
-	code+="#";
+	code += '#';
+	in_file.close();
 }
 
 void TokenAnalyzer::ParsePunctuation(){
+	int index = 0;
 	switch(ch){
 		case ',':
+			token[index++] = ',';
 			id_code=COMMA_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ';':
+			token[index++] = ';';
 			id_code=SEMICOLON_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '.':
+			token[index++] = '.';
 			id_code=DOT_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '=':
+			token[index++] = '=';
 			id_code=EQUAL_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ':':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=SET_OPERAND;
+			token[index++] = ':';
+			GetChar();
+			if(ch=='='){
+				token[index++] = '=';
+				id_code=SET_OPERAND;
 					//cout<<"Operand : \':=\'"<<endl;
-				}
-				else{
-					if(index>0){
-						Retreat();
-					}
-					throw exception("UnIdentified Token!");
-				}
 			}
 			else{
-				throw exception("UnIdentified Token!");
+				//ERROR!
 			}
 			break;
 		case '+':
+			token[index++] = '+';
 			id_code=PLUS_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '-':
+			token[index++] = '-';
 			id_code=MINUS_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '*':
+			token[index++] = '*';
 			id_code=MUL_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '/':
+			token[index++] = '/';
 			id_code=DIV_OPERAND;
 			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case '<':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=LEQUAL_OPERAND;
+			token[index++] = '<';
+			GetChar();
+			if(ch=='='){
+				token[index++] = '=';
+				id_code=LEQUAL_OPERAND;
 					//cout<<"Operand : \'<=\'"<<endl;
-				}
-				else if(ch=='>'){
-					id_code=NEQUAL_OPERAND;
+			}
+			else if(ch=='>'){
+				token[index++] = '>';
+				id_code=NEQUAL_OPERAND;
 					//cout<<"Operand : \'<>\'"<<endl;
-				}
-				else{
-					id_code=LESS_OPERAND;
-					//cout<<"Operand : \'<\'"<<endl;
-					if(index>0){
-						Retreat();
-					}
-				}
 			}
 			else{
 				id_code=LESS_OPERAND;
+					//cout<<"Operand : \'<\'"<<endl;
+				Retreat();
 			}
 			break;
 		case '>':
-			if(IsEndOfFile()==false){
-				GetChar();
-				if(ch=='='){
-					id_code=MEQUAL_OPERAND;
-				}
-				else{
-					id_code=MORE_OPERAND;
-					if(index>0){
-						Retreat();
-					}
-				}
+			token[index++] = '>';
+			GetChar();
+			if(ch=='='){
+				token[index++] = '=';
+				id_code=MEQUAL_OPERAND;
+					//cout<<"Operand : \'>=\'"<<endl;
 			}
 			else{
 				id_code=MORE_OPERAND;
+					//cout<<"Operand : \'>\'"<<endl;
+				Retreat();
 			}
 			break;
 		case '(':
+			token[index++] = '(';
 			id_code=LBRACKET_OPERAND;
-
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		case ')':
+			token[index++] = ')';
 			id_code=RBRACKET_OPERAND;
+			//cout<<"Operand : \'"<<ch<<"\'"<<endl;
 			break;
 		default:
 			break;
 	}
 }
 
-
 void TokenAnalyzer::GetChar(){
-	if(charindex==1){
-		cout<<"Line "<<linenum<<": ";
-	}
 	ch=code[++index];
-	cout<<ch;
 	charindex++;
 	if(ch=='\n'){
-		global_conteiner.Display();
-		global_conteiner.Clear();
 		charindex=1;
 		linenum++;
 	}
+}
+
+bool TokenAnalyzer::IsEndOfFile(){
+	return (ch == '#');
 }
 
 void TokenAnalyzer::Retreat(){
@@ -150,7 +174,7 @@ void TokenAnalyzer::Retreat(){
 }
 
 bool TokenAnalyzer::IsSpace(){
-	if(ch==' '){
+	if (ch == ' '){
 		return true;
 	}
 	return false;
@@ -166,9 +190,6 @@ bool TokenAnalyzer::IsLineEnd(){
 void TokenAnalyzer::Run(){
 	Clear();
 	while(IsSpace()||IsLineEnd()){
-		if(IsEndOfFile()==true){
-			break;
-		}
 		GetChar();
 	}
 	if(IsAlpha()){
@@ -179,26 +200,51 @@ void TokenAnalyzer::Run(){
 	}
 	else if(IsPunc()){
 		ParsePunctuation();
-		if(IsEndOfFile()==false){
+		GetChar();
+	}
+	else if(!IsEndOfFile()){
+		while (IsEndOfFile() == false){
+			if (!IsSpace() && !IsLineEnd() && !IsAlpha() && !IsNum() && !IsPunc()){
+				Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
+			}
 			GetChar();
 		}
+		throw exception("unidentified character!");
 	}
-	else{
-		if(IsEndOfFile()==false){
-			GetChar();
-		}
-		throw exception("Unidentified Character!");
+}
+
+void TokenAnalyzer::Error(MyException e,bool canrun){
+	global_container.EnQueue(e);
+	if (canrun == false){
+		ContainError = !canrun;
 	}
-	DisplayResult();
-	if(IsEndOfFile()==true){
-		throw exception("End Of File!");
+}
+
+void TokenAnalyzer::Error(int type, bool canrun,char *msg){
+	global_container.EnQueue(MyException(type, linenum, charindex - strlen(token) - 2, msg));
+	if (canrun == false){
+		ContainError = !canrun;
 	}
 }
 
 void TokenAnalyzer::DisplayResult(){
-	cout<<"code: "<<id_code<<endl;
-	cout<<"number: "<<num<<endl;
-	cout<<"token: "<<token<<endl;
+	int line = 1;
+	string temp = code;
+	while (temp.find("\n") != temp.npos){
+		cout << "Line " << setw(5) << right << line << ": " << temp.substr(0, temp.find("\n")) << endl;
+		temp.erase(0, temp.find("\n") + 1);
+		while (global_container.IsEmpty() == false && global_container.GetFront().GetRow() == line){
+			MyException exp = global_container.DeQueue();
+			cout << "**** " << setw(7 + exp.GetColumn() + 1) << right << "^" << exp.GetType() << ":" << exp.what() << endl;
+		}
+		line++;
+	}
+	cout << "Line " << setw(5) << right << line << ": " << temp.substr(0, temp.find("\n")) << endl;
+	while (global_container.IsEmpty() == false && global_container.GetFront().GetRow() == line){
+		MyException exp = global_container.DeQueue();
+		cout << "**** " << setw(7 + exp.GetColumn() + 1) << right << "^" << exp.GetType() << ":" << exp.what() << endl;
+	}
+	line++;
 }
 
 void TokenAnalyzer::Error(char *s){
@@ -251,30 +297,45 @@ bool TokenAnalyzer::IsPunc(){
 
 void TokenAnalyzer::ParseNum(){
 	int sum=0;
+	int index = 0;
+	bool overflow = false;
+	int begin = charindex;
 	while(IsNum()){
-		sum=sum*10+(ch-'0');
-		if(IsEndOfFile()==false){
-			GetChar();
+		if (sum < (INT_MAX - (ch - '0')) / 10){
+			sum = sum * 10 + (ch - '0');
+			token[index++] = ch;
 		}
 		else{
-			break;
+			overflow = true;
 		}
+		GetChar();
+	}
+	if (overflow == true){
+		sum = 0;
+		Error(MyException(NUMERIC_OVERFLOW, linenum, begin - 2, "这个数太大！"), false);
 	}
 	id_code=CONST_NUMBER;
 	num=sum;
 }
 
 void TokenAnalyzer::ParseString(){
+	bool overflow = false;
+	int begin = charindex;
 	int i=0;
 	bool PreCheckReserved=false;
 	while(IsAlpha()||(PreCheckReserved=IsNum())){
-		token[i++]=ch;
-		if(IsEndOfFile()==false){
-			GetChar();
+		if (i < MAXN){
+			token[i++] = ch;
 		}
 		else{
-			break;
+			overflow = true;
 		}
+		GetChar();
+	}
+	if (overflow == true){
+		memset(token, 0, sizeof(token));
+		strcpy(token, "#unidentified#");
+		Error(MyException(STRING_LENGTH_OVERFLOW, linenum, begin - 2, "标识符名称过长！"), false);
 	}
 	if(!PreCheckReserved){
 		id_code=IsReserved();
@@ -305,6 +366,25 @@ int TokenAnalyzer::IsReserved(){
 				return IDENTIFIER;
 			}
 			break;
+		case 'd':
+			if (strcmp(token, "do") == 0){
+				return DO_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'e':
+			if (strcmp(token, "end") == 0){
+				return END_RESERVED;
+			}
+			else if (strcmp(token, "else") == 0){
+				return ELSE_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
 		case 'i':
 			if(strcmp(token,"if")==0){
 				return IF_RESERVED;
@@ -313,6 +393,14 @@ int TokenAnalyzer::IsReserved(){
 				return IDENTIFIER;
 			}
 			break;
+		case 'o':
+			if (strcmp(token, "odd") == 0){
+				return ODD_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break; 
 		case 'p':
 			if(strcmp(token,"procedure")==0){
 				return PROCEDURE_RESERVED;
@@ -324,6 +412,25 @@ int TokenAnalyzer::IsReserved(){
 		case 'r':
 			if(strcmp(token,"read")==0){
 				return READ_RESERVED;
+			}
+			else if (strcmp(token, "repeat") == 0){
+				return REPEAT_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 't':
+			if (strcmp(token, "then") == 0){
+				return THEN_RESERVED;
+			}
+			else{
+				return IDENTIFIER;
+			}
+			break;
+		case 'u':
+			if (strcmp(token, "until") == 0){
+				return UNTIL_RESERVED;
 			}
 			else{
 				return IDENTIFIER;

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -15,16 +15,23 @@
     <ClInclude Include="GrammarAnalyzer.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="MyException.h" />
+    <ClInclude Include="PCodeGenerator.h" />
+    <ClInclude Include="RuntimeStack.h" />
+    <ClInclude Include="SymTable.h" />
     <ClInclude Include="TokenAnalyzer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ErrorContainer.cpp" />
     <ClCompile Include="GrammarAnalyzer.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="PCodeGenerator.cpp" />
+    <ClCompile Include="RuntimeStack.cpp" />
+    <ClCompile Include="SymTable.cpp" />
     <ClCompile Include="TokenAnalyzer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="in.txt" />
+    <Text Include="out.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1BB663E4-72B2-4617-850F-E6160043655B}</ProjectGuid>
@@ -35,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

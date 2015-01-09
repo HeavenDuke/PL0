@@ -3,18 +3,34 @@
 #include "MyException.h"
 #ifndef TOKENANALYZER_H
 #define TOKENANALYZER_H
-#define MAXN 255
-#define MAXLEN 100000
+
+typedef struct{
+	int Flag;
+	int Number;
+	char Value[MAXN];
+}Atoken;
+
 class TokenAnalyzer
 {
 	public:
 		TokenAnalyzer();
 		void Run();
 		void TestRun();
+		void Retreat();
+		const Atoken GetToken();
+		bool IsEndOfFile();
+		void Error(MyException m, bool canrun);
+		void Error(int type, bool canrun, char* msg);
+		void Display(){ global_container.Display(); }
+		void DisplayResult();
+		bool HasError();
 		~TokenAnalyzer();
+
+		ErrorContainer global_container;
 	private:
-		ifstream infile;
-		ofstream outfile;
+		ifstream in_file;
+		ofstream out_file;
+		bool ContainError;
 		int linenum;
 		int charindex;
 		char ch;
@@ -23,8 +39,6 @@ class TokenAnalyzer
 		int index;
 		int id_code;
 		string code;
-		ErrorContainer global_conteiner;
-		
 
 		void Clear();
 		bool IsNum();
@@ -32,17 +46,13 @@ class TokenAnalyzer
 		bool IsPunc();
 		int IsReserved();
 		bool IsSpace();
-		bool IsEndOfFile();
 		void GetChar();
 		bool IsLineEnd();
-		void Retreat();
 		void LoadFile();
 		void ParseNum();
 		void ParseString();
 		void ParsePunctuation();
 		void Error(char *);
-
-		void DisplayResult();
 };
 
 #endif

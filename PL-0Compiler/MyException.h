@@ -2,24 +2,16 @@
 #ifndef MYEXCEPTION_H
 #define MYEXCEPTION_H
 
-class MyException : exception{
+class MyException{
 	public:
 		MyException(int t,int r,int c,string msg){
 			type=t;
 			row=r;
 			column=c;
-			msg=message;
+			message = msg;
 		};
 		void show(){
-			switch(type){
-			case TOKEN_ERROR:
-				cout<<"Error";
-				break;
-			case TOKEN_WARNING:
-				cout<<"Warning";
-				break;
-			}
-			cout<<"( "<<row<<" , "<<column<<" >: "<<message<<endl;
+			
 		}
 		int GetType(){return type;}
 		int GetRow(){return row;}
