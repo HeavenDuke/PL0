@@ -1,94 +1,23 @@
-﻿生成启动时间为 2015/1/9 5:52:15。
-     1>项目“I:\Users\Obscurity\git\PL0-Compiler\PL-0Compiler\PL-0Compiler.vcxproj”在节点 2 上(Build 个目标)。
+﻿Build started 2015/1/9 21:04:26.
+     1>Project "C:\Users\HeavenDuke\Git\PL0CP\PL-0Compiler\PL-0Compiler.vcxproj" on node 2 (Build target(s)).
+       Project file contains ToolsVersion="12.0". This toolset is unknown or missing. You may be able to resolve this by installing the appropriate .NET Framework for this toolset. Treating the project as if it had ToolsVersion="4.0".
      1>ClCompile:
-         I:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt GrammarAnalyzer.cpp
-         GrammarAnalyzer.cpp
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\symtable.h(39): warning C4091: “typedef ”: 没有声明变量时忽略“Symbol”的左侧
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\symtable.h(16): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\pcodegenerator.h(46): warning C4091: “typedef ”: 没有声明变量时忽略“PCode”的左侧
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\runtimestack.h(27): warning C4091: “typedef ”: 没有声明变量时忽略“Piece”的左侧
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(207): warning C4101: “index”: 未引用的局部变量
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(208): warning C4101: “addr1”: 未引用的局部变量
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(544): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(604): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(607): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(610): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(613): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(616): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(619): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(622): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(625): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(628): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(631): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(634): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(637): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(640): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(643): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(646): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(649): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(652): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(655): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(658): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(661): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(664): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(667): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(670): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(673): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(676): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(679): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(682): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(685): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(688): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(691): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(694): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(697): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
-     1>i:\users\obscurity\git\pl0-compiler\pl-0compiler\grammaranalyzer.cpp(700): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 i:\program files (x86)\microsoft visual studio 12.0\vc\include\string.h(112) : 参见“strcpy”的声明
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt SymTable.cpp
+         SymTable.cpp
+     1>c:\users\heavenduke\git\pl0cp\pl-0compiler\symtable.h(39): warning C4091: 'typedef ' : ignored on left of 'Symbol' when no variable is declared
+     1>c:\users\heavenduke\git\pl0cp\pl-0compiler\symtable.h(16): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 d:\program files (x86)\microsoft visual studio 11.0\vc\include\string.h(110) : see declaration of 'strcpy'
        Link:
-         I:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"I:\Users\Obscurity\git\PL0-Compiler\Debug\PL-0Compiler.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"I:\Users\Obscurity\git\PL0-Compiler\Debug\PL-0Compiler.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"I:\Users\Obscurity\git\PL0-Compiler\Debug\PL-0Compiler.lib" /MACHINE:X86 Debug\ErrorContainer.obj
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\HeavenDuke\Git\PL0CP\Debug\PL-0Compiler.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\HeavenDuke\Git\PL0CP\Debug\PL-0Compiler.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\HeavenDuke\Git\PL0CP\Debug\PL-0Compiler.lib" /MACHINE:X86 Debug\ErrorContainer.obj
          Debug\GrammarAnalyzer.obj
          Debug\Main.obj
          Debug\PCodeGenerator.obj
          Debug\RuntimeStack.obj
          Debug\SymTable.obj
          Debug\TokenAnalyzer.obj
-         PL-0Compiler.vcxproj -> I:\Users\Obscurity\git\PL0-Compiler\Debug\PL-0Compiler.exe
-     1>已完成生成项目“I:\Users\Obscurity\git\PL0-Compiler\PL-0Compiler\PL-0Compiler.vcxproj”(Build 个目标)的操作。
+         PL-0Compiler.vcxproj -> C:\Users\HeavenDuke\Git\PL0CP\Debug\PL-0Compiler.exe
+     1>Done Building Project "C:\Users\HeavenDuke\Git\PL0CP\PL-0Compiler\PL-0Compiler.vcxproj" (Build target(s)).
 
-生成成功。
+Build succeeded.
 
-已用时间 00:00:00.98
+Time Elapsed 00:00:01.51

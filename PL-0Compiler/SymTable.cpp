@@ -19,15 +19,21 @@ bool SymTable::Check(Symbol s){
 	switch (s.kind){
 		case PROCEDURE:
 			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
-				if (iter->level == level){
-					if (iter->kind == PROCEDURE){
-						level--;
-					}
-				}
-				if (strcmp(iter->name, s.name) == 0){
-					return false;
+				if (strcmp(iter->name, s.name) == 0 && iter->level == s.level){
+					return true;
 				}
 			}
+			level = s.level-1;
+			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
+				if (strcmp(iter->name, s.name) == 0 && iter->level == level){
+					return true;
+				}
+				if (iter->kind == PROCEDURE){
+					level--;
+				}
+			}
+			return false;
+			break;
 		default:
 			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
 				if (strcmp(iter->name, s.name) == 0 && level == s.level){
@@ -38,8 +44,6 @@ bool SymTable::Check(Symbol s){
 				}
 			}
 			level = s.level;
-				//对于外层，同名，但是不同类会报错
-				//同名且同类会被覆盖
 			for (iter = SymbolTable.rbegin(); iter != SymbolTable.rend(); iter++){
 				if (strcmp(iter->name, s.name) == 0 && iter->level == level){
 					if (iter->kind != s.kind){

@@ -17,7 +17,7 @@
 #include<set>
 #include<list>
 
-#define MAXLEVEL 3
+#define MAXLEVEL 2
 
 #define BEGIN_RESERVED 1
 #define CALL_RESERVED 2

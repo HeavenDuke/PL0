@@ -1,7 +1,9 @@
-const a = 4525555555555555555555555555555555555555555,b = 27;
-var x,y,g,m
+const a = 45,b = 27;
+var x,y,g,m;
 procedure swap;
     var temp;
+    procedure mod;
+        x:=x;
     begin
         temp:=x;
         x:=y;
@@ -10,10 +12,10 @@ procedure swap;
 procedure mod;
     x:=x-x/y*y;
 begin
-    x:=u;
+    x:=a;
     y:=b;
     call mod;
-    while x<0 do
+    while x<>0 do
         begin
             call swap;
             call mod

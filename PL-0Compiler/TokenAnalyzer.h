@@ -13,6 +13,8 @@ typedef struct{
 class TokenAnalyzer
 {
 	public:
+		TokenAnalyzer& operator=(const TokenAnalyzer& analyzer);
+		TokenAnalyzer(const TokenAnalyzer& analyzer);
 		TokenAnalyzer();
 		void Run();
 		void TestRun();
@@ -38,6 +40,7 @@ class TokenAnalyzer
 		int num;
 		int index;
 		int id_code;
+		bool eof;
 		string code;
 
 		void Clear();

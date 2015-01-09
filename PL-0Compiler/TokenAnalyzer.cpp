@@ -10,6 +10,20 @@ TokenAnalyzer::TokenAnalyzer(){
 	GetChar();
 }
 
+TokenAnalyzer& TokenAnalyzer::operator=(const TokenAnalyzer& analyzer){
+	return TokenAnalyzer(analyzer);
+}
+
+TokenAnalyzer::TokenAnalyzer(const TokenAnalyzer& analyzer){
+	index=analyzer.index;
+	linenum=analyzer.linenum;
+	charindex=analyzer.charindex;
+	ContainError = analyzer.ContainError;
+	num=analyzer.num;
+	LoadFile();
+	GetChar();
+}
+
 const Atoken TokenAnalyzer::GetToken(){
 	Atoken atoken;
 	atoken.Number = num;
@@ -26,7 +40,7 @@ bool TokenAnalyzer::HasError(){
 void TokenAnalyzer::LoadFile(){
 	string path_in;
 	string path_out;
-	do{
+	/*do{
 		cout << "请指定输入文件路径:";
 		cin >> path_in;
 		in_file.open(path_in, ios::in);
@@ -43,14 +57,14 @@ void TokenAnalyzer::LoadFile(){
 		}
 	} while (!out_file);
 	freopen(path_in.c_str(), "r", stdin);
-	freopen(path_out.c_str(), "w", stdout);
+	freopen(path_out.c_str(), "w", stdout);*/
+	in_file.open("in.txt", ios::in);
 	code.clear();
 	char temp;
 	while((temp=in_file.get())!=EOF){
 		code+=temp;
 	}
-	code += '#';
-	in_file.close();
+	//in_file.close();
 }
 
 void TokenAnalyzer::ParsePunctuation(){
@@ -157,20 +171,23 @@ void TokenAnalyzer::ParsePunctuation(){
 }
 
 void TokenAnalyzer::GetChar(){
-	ch=code[++index];
-	charindex++;
-	if(ch=='\n'){
-		charindex=1;
-		linenum++;
+	if(IsEndOfFile()==false){
+		ch=code[++index];
+		charindex++;
+		if(ch=='\n'){
+			charindex=1;
+			linenum++;
+		}
 	}
 }
 
 bool TokenAnalyzer::IsEndOfFile(){
-	return (ch == '#');
+	return (index>=int(code.length()));
 }
 
 void TokenAnalyzer::Retreat(){
 	ch=code[--index];
+	eof=false;
 }
 
 bool TokenAnalyzer::IsSpace(){
@@ -203,12 +220,7 @@ void TokenAnalyzer::Run(){
 		GetChar();
 	}
 	else if(!IsEndOfFile()){
-		while (IsEndOfFile() == false){
-			if (!IsSpace() && !IsLineEnd() && !IsAlpha() && !IsNum() && !IsPunc()){
-				Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
-			}
-			GetChar();
-		}
+		Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
 		throw exception("unidentified character!");
 	}
 }
@@ -254,6 +266,7 @@ void TokenAnalyzer::Error(char *s){
 void TokenAnalyzer::Clear(){
 	memset(token,0,sizeof(token));
 	num=0;
+	id_code=-1;
 }
 
 bool TokenAnalyzer::IsNum(){
@@ -301,13 +314,11 @@ void TokenAnalyzer::ParseNum(){
 	bool overflow = false;
 	int begin = charindex;
 	while(IsNum()){
-		if (sum < (INT_MAX - (ch - '0')) / 10){
-			sum = sum * 10 + (ch - '0');
-			token[index++] = ch;
-		}
-		else{
+		if (sum >= (INT_MAX - (ch - '0')) / 10){
 			overflow = true;
 		}
+		sum = sum * 10 + (ch - '0');
+		token[index++] = ch;
 		GetChar();
 	}
 	if (overflow == true){
@@ -322,8 +333,11 @@ void TokenAnalyzer::ParseString(){
 	bool overflow = false;
 	int begin = charindex;
 	int i=0;
-	bool PreCheckReserved=false;
-	while(IsAlpha()||(PreCheckReserved=IsNum())){
+	bool PreCheckReserved=true;
+	do{
+		if(IsNum()){
+			PreCheckReserved=false;
+		}
 		if (i < MAXN){
 			token[i++] = ch;
 		}
@@ -331,13 +345,13 @@ void TokenAnalyzer::ParseString(){
 			overflow = true;
 		}
 		GetChar();
-	}
+	}while((IsAlpha()||IsNum())&&!IsEndOfFile());
 	if (overflow == true){
 		memset(token, 0, sizeof(token));
 		strcpy(token, "#unidentified#");
 		Error(MyException(STRING_LENGTH_OVERFLOW, linenum, begin - 2, "标识符名称过长！"), false);
 	}
-	if(!PreCheckReserved){
+	if(PreCheckReserved==true){
 		id_code=IsReserved();
 	}
 	else{
@@ -356,11 +370,21 @@ int TokenAnalyzer::IsReserved(){
 			}
 			break;
 		case 'c':
-			if(strcmp(token,"call")==0){
-				return CALL_RESERVED;
+			if(token[1]=='a'){
+				if(strcmp(token,"call")==0){
+					return CALL_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
-			else if(strcmp(token,"const")==0){
-				return CONST_RESERVED;
+			else if(token[1]=='o'){
+				if(strcmp(token,"const")==0){
+					return CONST_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
 			else{
 				return IDENTIFIER;
@@ -375,11 +399,21 @@ int TokenAnalyzer::IsReserved(){
 			}
 			break;
 		case 'e':
-			if (strcmp(token, "end") == 0){
-				return END_RESERVED;
+			if(token[1]=='n'){
+				if(strcmp(token,"end")==0){
+					return END_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
-			else if (strcmp(token, "else") == 0){
-				return ELSE_RESERVED;
+			else if(token[1]=='l'){
+				if(strcmp(token,"else")==0){
+					return ELSE_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
 			else{
 				return IDENTIFIER;
@@ -410,11 +444,26 @@ int TokenAnalyzer::IsReserved(){
 			}
 			break;
 		case 'r':
-			if(strcmp(token,"read")==0){
-				return READ_RESERVED;
-			}
-			else if (strcmp(token, "repeat") == 0){
-				return REPEAT_RESERVED;
+			if(token[1]=='e'){
+				if(token[2]=='a'){
+					if(strcmp(token,"read")==0){
+						return READ_RESERVED;
+					}
+					else{
+						return IDENTIFIER;
+					}
+				}
+				else if(token[2]=='p'){
+					if(strcmp(token,"repeat")==0){
+						return REPEAT_RESERVED;
+					}
+					else{
+						return IDENTIFIER;
+					}
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
 			else{
 				return IDENTIFIER;
@@ -445,11 +494,21 @@ int TokenAnalyzer::IsReserved(){
 			}
 			break;
 		case 'w':
-			if(strcmp(token,"while")==0){
-				return WHILE_RESERVED;
+			if(token[1]=='h'){
+				if(strcmp(token,"while")==0){
+					return WHILE_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
-			else if(strcmp(token,"write")==0){
-				return WRITE_RESERVED;
+			else if(token[1]=='r'){
+				if(strcmp(token,"write")==0){
+					return WRITE_RESERVED;
+				}
+				else{
+					return IDENTIFIER;
+				}
 			}
 			else{
 				return IDENTIFIER;

@@ -1,0 +1,30 @@
+Line     1: const a = 45,b = 27;
+****       ^7:应为语句
+****       ^8:程序体内语句部分后面的符号不正确
+Line     2: var x,y,g,m;
+Line     3: procedure swap;
+Line     4:     var temp;
+Line     5:     begin
+Line     6:         temp:=x;
+Line     7:         x:=y;
+Line     8:         y:=temp;
+Line     9:     end;
+Line    10: procedure mod;
+Line    11:     x:=x-x/y*y;
+Line    12: begin
+Line    13:     x:=a;
+Line    14:     y:=b;
+Line    15:     call mod;
+Line    16:     while x<>0 do
+Line    17:         begin
+Line    18:             call swap;
+Line    19:             call mod
+Line    20:         end;
+Line    21:     g:=y;
+Line    22:     m:=a*b/g;
+Line    23:     write(g,m)
+Line    24: end.
+          INDEX        COMMAND            GAP          VALUE
+              0            JMP              0              1
+              1            INT              0              3
+              2            OPR              0              0

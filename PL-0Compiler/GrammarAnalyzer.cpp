@@ -38,16 +38,14 @@ void GrammarAnalyzer::Procedure(){
 	nxtlev = Union(nxtlev, declbegsys);
 	nxtlev = Union(nxtlev, statbegsys);
 	nxtlev.insert(DOT_OPERAND);
-
 	analyzer.Run();
 	generator.Add(JMP, 0, 0);
 	SubProcedure(0, true, "", -1, nxtlev);
 	if (analyzer.GetToken().Flag == DOT_OPERAND){
-		generator.Add(OPR, 0, 0);
+		generator.Add(OPR,0,0);
 	}
 	else{
-		analyzer.Error(SHOULD_BE_DOT, false, "应该为句号");
-		analyzer.Display();
+		analyzer.Error(SHOULD_BE_DOT, false, GetMessage(SHOULD_BE_DOT));
 	}
 }
 
@@ -85,7 +83,7 @@ void GrammarAnalyzer::Factor(int level, set<int> fsys){
 				analyzer.Run();
 			}
 			else{
-				analyzer.Error(MISSING_RIGHT_BRACKET, false, "漏右括号");
+				analyzer.Error(MISSING_RIGHT_BRACKET, false, GetMessage(MISSING_RIGHT_BRACKET));
 			}
 		}
 		else if (analyzer.GetToken().Flag == CONST_NUMBER){
@@ -104,12 +102,12 @@ void GrammarAnalyzer::Factor(int level, set<int> fsys){
 					generator.Add(LOD, level - sym.level, sym.adr);
 					break;
 				case PROCEDURE:
-					analyzer.Error(CANNOT_HAVE_PROCEDURE, false, "表达式内不能有标识符");
+					analyzer.Error(CANNOT_HAVE_PROCEDURE, false, GetMessage(CANNOT_HAVE_PROCEDURE));
 					break;
 				}
 			}
 			else{
-				analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
+				analyzer.Error(UNKNOWN_IDENTIFIER, false, GetMessage(UNKNOWN_IDENTIFIER));
 			}
 			analyzer.Run();
 		}
@@ -198,13 +196,14 @@ void GrammarAnalyzer::Condition(int level, set<int> fsys){
 			generator.Add(OPR, 0, relation);
 		}
 		else{
-			analyzer.Error(SHOULD_BE_RELATION, false, "应为关系运算符");
+			analyzer.Error(SHOULD_BE_RELATION, false, GetMessage(SHOULD_BE_RELATION));
 		}
 	}
 }
 
 void GrammarAnalyzer::Sentence(int level, int begin, set<int> fsys){
 	int index;
+	set<int> nxtlev;
 	int addr1;
 	switch (analyzer.GetToken().Flag){
 		case IDENTIFIER:
@@ -232,6 +231,8 @@ void GrammarAnalyzer::Sentence(int level, int begin, set<int> fsys){
 			WriteDeclaration(level, fsys);
 			break;
 		default:
+			nxtlev=set<int>();
+			Test(fsys,nxtlev,INCORRECT_AFTER_SENTENCE);
 			break;
 	}
 	
@@ -248,7 +249,7 @@ void GrammarAnalyzer::BeginDeclaration(int level, int begin, set<int> fsys){
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_SEMI_BETWEEN, false, "语句之间漏分号");
+			analyzer.Error(MISSING_SEMI_BETWEEN, false, GetMessage(SHOULD_BE_RELATION));
 		}
 		Sentence(level, begin, nxtlev);
 	}
@@ -256,19 +257,19 @@ void GrammarAnalyzer::BeginDeclaration(int level, int begin, set<int> fsys){
 		analyzer.Run();
 	}
 	else{
-		analyzer.Error(SHOULD_BE_END_OR_SEMI, false, "应为分号或end");
+		analyzer.Error(SHOULD_BE_END_OR_SEMI, false, GetMessage(SHOULD_BE_END_OR_SEMI));
 	}
 }
 
 void GrammarAnalyzer::CallDeclaration(int level, set<int> fsys){
 	analyzer.Run();
 	if (analyzer.GetToken().Flag != IDENTIFIER){
-		analyzer.Error(IDENTIFIER_AFTER_CALL, false, "call后应为标识符");
+		analyzer.Error(IDENTIFIER_AFTER_CALL, false, GetMessage(IDENTIFIER_AFTER_CALL));
 	}
 	else{
 		int index = table.Locate(analyzer.GetToken().Value);
 		if (index < 0){
-			analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
+			analyzer.Error(UNKNOWN_IDENTIFIER, false, GetMessage(UNKNOWN_IDENTIFIER));
 		}
 		else{
 			Symbol s = table.GetSymbol(index);
@@ -276,7 +277,7 @@ void GrammarAnalyzer::CallDeclaration(int level, set<int> fsys){
 				generator.Add(CAL, level - s.level, generator.Redirect(s.adr));
 			}
 			else{
-				analyzer.Error(CANNOT_REFER, false, "不可调用常量或变量");
+				analyzer.Error(CANNOT_REFER, false, GetMessage(CANNOT_REFER));
 			}
 		}
 		analyzer.Run();
@@ -295,7 +296,7 @@ void GrammarAnalyzer::IfDeclaration(int level, int begin, set<int> fsys){
 		analyzer.Run();
 	}
 	else{
-		analyzer.Error(SHOULD_BE_THEN, false, "应为then");
+		analyzer.Error(SHOULD_BE_THEN, false, GetMessage(SHOULD_BE_THEN));
 	}
 	Sentence(level, begin, fsys);
 	if (analyzer.GetToken().Flag == ELSE_RESERVED){
@@ -320,7 +321,7 @@ void GrammarAnalyzer::RepeatDeclaration(int level, int begin, set<int> fsys){
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_SEMI_BETWEEN, false, "语句之间漏分号");
+			analyzer.Error(MISSING_SEMI_BETWEEN, false, GetMessage(MISSING_SEMI_BETWEEN));
 		}
 	}
 	Sentence(level, begin, nxtlev);
@@ -343,15 +344,20 @@ void GrammarAnalyzer::ReadDeclaration(int level, set<int> fsys){
 				int index = table.Locate(analyzer.GetToken().Value);
 				if (index >= 0){
 					Symbol s = table.GetSymbol(index);
-					if (s.kind == VARIABLE){
-						generator.Add(RED, level - s.level, s.adr);
-					}
-					else{
-						//ERROR!
+					switch(s.kind){
+						case VARIABLE:
+							generator.Add(RED, level - s.level, s.adr);
+							break;
+						case CONSTANT:
+							analyzer.Error(READ_CONST,false,GetMessage(READ_CONST));
+							break;
+						case PROCEDURE:
+							analyzer.Error(READ_PROCEDURE,false,GetMessage(READ_PROCEDURE));
+							break;
 					}
 				}
 				else{
-					analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
+					analyzer.Error(UNKNOWN_IDENTIFIER, false, GetMessage(UNKNOWN_IDENTIFIER));
 				}
 				analyzer.Run();
 			}
@@ -361,13 +367,13 @@ void GrammarAnalyzer::ReadDeclaration(int level, set<int> fsys){
 		} while (analyzer.GetToken().Flag == COMMA_OPERAND);
 	}
 	else{
-		analyzer.Error(SHOULD_BE_LEFT_BRACKET, false, "应为左括号");
+		analyzer.Error(SHOULD_BE_LEFT_BRACKET, false, GetMessage(SHOULD_BE_LEFT_BRACKET));
 	}
 	if (analyzer.GetToken().Flag == RBRACKET_OPERAND){
 		analyzer.Run();
 	}
 	else{
-		analyzer.Error(MISSING_RIGHT_BRACKET, false, "应为右括号");
+		analyzer.Error(MISSING_RIGHT_BRACKET, false, GetMessage(MISSING_RIGHT_BRACKET));
 	}
 }
 
@@ -382,7 +388,7 @@ void GrammarAnalyzer::WhileDeclaration(int level, int begin, set<int> fsys){
 		analyzer.Run();
 	}
 	else{
-		analyzer.Error(SHOULD_BE_DO, false, "应为do");
+		analyzer.Error(SHOULD_BE_DO, false,GetMessage(SHOULD_BE_DO));
 	}
 	int index = generator.GetSize() - 1;
 	Sentence(level, begin, fsys);
@@ -397,7 +403,7 @@ void GrammarAnalyzer::AssignDeclaration(int level, set<int> fsys){
 		if (s.kind == VARIABLE){
 			analyzer.Run();
 			if (analyzer.GetToken().Flag != SET_OPERAND){
-				analyzer.Error(SHOULD_BE_SET, false, "应该为赋值运算符:=");
+				analyzer.Error(SHOULD_BE_SET, false, GetMessage(SHOULD_BE_SET));
 			}
 			else{
 				analyzer.Run();
@@ -407,11 +413,11 @@ void GrammarAnalyzer::AssignDeclaration(int level, set<int> fsys){
 			generator.Add(STO, level - s.level, s.adr);
 		}
 		else{
-			analyzer.Error(CANNOT_ASSIGN, false, "不可向常量或过程赋值");
+			analyzer.Error(CANNOT_ASSIGN, false, GetMessage(CANNOT_ASSIGN));
 		}
 	}
 	else{
-		analyzer.Error(UNKNOWN_IDENTIFIER, false, "标识符未说明");
+		analyzer.Error(UNKNOWN_IDENTIFIER, false, GetMessage(UNKNOWN_IDENTIFIER));
 	}
 }
 
@@ -430,11 +436,11 @@ void GrammarAnalyzer::WriteDeclaration(int level, set<int> fsys){
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_RIGHT_BRACKET, false, "漏右括号");
+			analyzer.Error(MISSING_RIGHT_BRACKET, false, GetMessage(MISSING_RIGHT_BRACKET));
 		}
 	}
 	else{
-		analyzer.Error(SHOULD_BE_LEFT_BRACKET, false, "应为左括号");
+		analyzer.Error(SHOULD_BE_LEFT_BRACKET, false, GetMessage(SHOULD_BE_LEFT_BRACKET));
 	}
 }
 
@@ -442,7 +448,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 	set<int> nxtlev;
 	int index = 0;
 	if (level > MAXLEVEL){
-		analyzer.Error(TOODEEP, false, "嵌套层次过高");
+		analyzer.Error(TOODEEP, false, GetMessage(TOODEEP));
 	}
 	if (!isroot){
 		generator.Add(JMP, 0, generator.GetSize() + 1);
@@ -460,7 +466,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
+			analyzer.Error(MISSING_COMMA_OR_SEMI, false, GetMessage(MISSING_COMMA_OR_SEMI));
 		}
 	}
 	int addr = 3;
@@ -475,7 +481,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
+			analyzer.Error(MISSING_COMMA_OR_SEMI, false, GetMessage(MISSING_COMMA_OR_SEMI));
 		}
 	}
 	int addr0 = 0;
@@ -488,17 +494,17 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 				analyzer.Run();
 			}
 			else{
-				analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
+				analyzer.Error(DUPLICATE_DECLARATION, false, GetMessage(DUPLICATE_DECLARATION));
 			}
 		}
 		else{
-			analyzer.Error(IDENTIFIER_AFTER_CVP, false, "const,var,procedure后应为标识符");
+			analyzer.Error(IDENTIFIER_AFTER_CVP, false, GetMessage(IDENTIFIER_AFTER_CVP));
 		}
 		if (analyzer.GetToken().Flag == SEMICOLON_OPERAND){
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
+			analyzer.Error(MISSING_COMMA_OR_SEMI, false, GetMessage(MISSING_COMMA_OR_SEMI));
 		}
 		nxtlev = fsys;
 		nxtlev.insert(SEMICOLON_OPERAND);
@@ -515,7 +521,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 			Test(nxtlev, fsys, INCORRECT_SYMBOL_AFTER_PROCEDURE);
 		}
 		else{
-			analyzer.Error(MISSING_COMMA_OR_SEMI, false, "漏掉逗号或分号");
+			analyzer.Error(MISSING_COMMA_OR_SEMI, false, GetMessage(MISSING_COMMA_OR_SEMI));
 		}
 	}
 
@@ -545,7 +551,7 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 		analyzer.Run();
 		if (analyzer.GetToken().Flag == SET_OPERAND || analyzer.GetToken().Flag == EQUAL_OPERAND){
 			if (analyzer.GetToken().Flag == SET_OPERAND){
-				analyzer.Error(EQUAL_NOT_SET, false, "应该是=而不是:=");
+				analyzer.Error(EQUAL_NOT_SET, false, GetMessage(EQUAL_NOT_SET));
 			}
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == CONST_NUMBER){
@@ -555,19 +561,19 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 					analyzer.Run();
 				}
 				else{
-					analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
+					analyzer.Error(DUPLICATE_DECLARATION, false, GetMessage(DUPLICATE_DECLARATION));
 				}
 			}
 			else{
-				analyzer.Error(NUMBER_AFTER_EQUAL, false, "=后应为数");
+				analyzer.Error(NUMBER_AFTER_EQUAL, false, GetMessage(NUMBER_AFTER_EQUAL));
 			}
 		}
 		else{
-			analyzer.Error(EQUAL_AFTER_IDENTIFIER, false, "标识符后应为=");
+			analyzer.Error(EQUAL_AFTER_IDENTIFIER, false, GetMessage(EQUAL_AFTER_IDENTIFIER));
 		}
 	}
 	else{
-		analyzer.Error(IDENTIFIER_AFTER_CVP, false, "const,var,procedure后应为标识符");
+		analyzer.Error(IDENTIFIER_AFTER_CVP, false, GetMessage(IDENTIFIER_AFTER_CVP));
 	}
 	set<int> nxtlev;
 	nxtlev.insert(SEMICOLON_OPERAND);
@@ -588,7 +594,7 @@ void GrammarAnalyzer::VarDeclaration(int level, int &addr, int &variablenum){
 			analyzer.Run();
 		}
 		else{
-			analyzer.Error(DUPLICATE_DECLARATION, false, "重复定义的常量、变量或过程!");
+			analyzer.Error(DUPLICATE_DECLARATION, false, GetMessage(DUPLICATE_DECLARATION));
 		}
 	}
 }
@@ -597,7 +603,7 @@ void GrammarAnalyzer::Analysis(){
 	rstack.Run(generator, table);
 }
 
-char *GetMessage(int errcode){
+char *GrammarAnalyzer::GetMessage(int errcode){
 	char *res = new char[MAXN];
 	switch (errcode){
 		case EQUAL_NOT_SET:
@@ -687,6 +693,9 @@ char *GetMessage(int errcode){
 		case READ_CONST:
 			strcpy(res, "Read的结果不可写入常量");
 			break;
+		case READ_PROCEDURE:
+			strcpy(res, "Read的结果不可写入过程");
+			break;
 		case READ_UNIDENTIFIED:
 			strcpy(res, "Read写入未被定义的变量");
 			break;
@@ -694,7 +703,7 @@ char *GetMessage(int errcode){
 			strcpy(res, "应该为左括号");
 			break;
 		case TOODEEP:
-			strcpy(res, "程序嵌套过深");
+			strcpy(res, "程序嵌套过深，最多三层");
 			break;
 		case DUPLICATE_DECLARATION:
 			strcpy(res, "重复定义的常量、变量或过程!");
@@ -707,7 +716,7 @@ void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
 	if (s1.find(analyzer.GetToken().Flag) == s1.end()){
 		analyzer.Error(errcode, false, GetMessage(errcode));
 		s1 = Union(s1, s2);
-		while (s1.find(analyzer.GetToken().Flag) == s1.end()){
+		while (analyzer.IsEndOfFile()==false&&s1.find(analyzer.GetToken().Flag) == s1.end()){
 			analyzer.Run();
 		}
 	}
@@ -723,8 +732,7 @@ void GrammarAnalyzer::Run(){
 		}
 	}
 	catch (exception e){
-		
-		cout << e.what() << endl;
+		analyzer.DisplayResult();
 		Show();
 		if (analyzer.HasError() == false){
 			Analysis();
