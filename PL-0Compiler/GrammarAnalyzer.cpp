@@ -22,14 +22,24 @@ GrammarAnalyzer::~GrammarAnalyzer(){
 
 set<int> GrammarAnalyzer::Union(set<int> set1, set<int> set2){
 	set<int> res;
+	//cout<<"SET 1:";
 	for each (int var in set1)
 	{
+		//cout<<var<<',';
 		res.insert(var);
 	}
+	//cout<<endl<<"SET 2:";
 	for each (int var in set2)
 	{
+		//cout<<var<<',';
 		res.insert(var);
 	}
+	/*cout<<endl<<"RES:";
+	for each (int var in res)
+	{
+		cout<<var<<',';
+	}
+	cout<<endl;*/
 	return res;
 }
 
@@ -91,7 +101,7 @@ void GrammarAnalyzer::Factor(int level, set<int> fsys){
 			analyzer.Run();
 		}
 		else if (analyzer.GetToken().Flag == IDENTIFIER){
-			int index = table.Locate(analyzer.GetToken().Value);
+			int index = table.Locate(analyzer.GetToken().Value,level);
 			if (index >= 0){
 				Symbol sym = table.GetSymbol(index);
 				switch (sym.kind){
@@ -265,7 +275,7 @@ void GrammarAnalyzer::CallDeclaration(int level, set<int> fsys){
 		analyzer.Error(IDENTIFIER_AFTER_CALL, false, GetMessage(IDENTIFIER_AFTER_CALL));
 	}
 	else{
-		int index = table.Locate(analyzer.GetToken().Value);
+		int index = table.Locate(analyzer.GetToken().Value,level);
 		if (index < 0){
 			analyzer.Error(UNKNOWN_IDENTIFIER, false, GetMessage(UNKNOWN_IDENTIFIER));
 		}
@@ -339,7 +349,7 @@ void GrammarAnalyzer::ReadDeclaration(int level, set<int> fsys){
 		do{
 			analyzer.Run();
 			if (analyzer.GetToken().Flag == IDENTIFIER){
-				int index = table.Locate(analyzer.GetToken().Value);
+				int index = table.Locate(analyzer.GetToken().Value,level);
 				if (index >= 0){
 					Symbol s = table.GetSymbol(index);
 					switch(s.kind){
@@ -395,7 +405,7 @@ void GrammarAnalyzer::WhileDeclaration(int level, int begin, set<int> fsys){
 }
 
 void GrammarAnalyzer::AssignDeclaration(int level, set<int> fsys){
-	int index = table.Locate(analyzer.GetToken().Value);
+	int index = table.Locate(analyzer.GetToken().Value,level);
 	if (index >= 0){
 		Symbol s = table.GetSymbol(index);
 		if (s.kind == VARIABLE){
@@ -428,7 +438,7 @@ void GrammarAnalyzer::WriteDeclaration(int level, set<int> fsys){
 			nxtlev.insert(RBRACKET_OPERAND);
 			nxtlev.insert(COMMA_OPERAND);
 			if(analyzer.GetToken().Flag==IDENTIFIER){
-				int index = table.Locate(analyzer.GetToken().Value);
+				int index = table.Locate(analyzer.GetToken().Value,level);
 				if(index>=0){
 					Symbol s=table.GetSymbol(index);
 					if(s.kind==PROCEDURE){
@@ -502,6 +512,7 @@ int GrammarAnalyzer::SubProcedure(int level, bool isroot, char *name, int prev, 
 			}
 			else{
 				analyzer.Error(DUPLICATE_DECLARATION, false, GetMessage(DUPLICATE_DECLARATION));
+				analyzer.Run();
 			}
 		}
 		else{
@@ -591,6 +602,7 @@ void GrammarAnalyzer::ConstDeclaration(int level){
 	Test(nxtlev, set<int>(), INCORRECT_AFTER_SENTENCE_INSIDE_PROCEDURE);
 }
 
+//变量声明
 void GrammarAnalyzer::VarDeclaration(int level, int &addr, int &variablenum){
 	if (analyzer.GetToken().Flag == IDENTIFIER){
 		Symbol s(analyzer.GetToken().Value, 0, 0, VARIABLE, level);
@@ -606,10 +618,12 @@ void GrammarAnalyzer::VarDeclaration(int level, int &addr, int &variablenum){
 	}
 }
 
+//解释执行中间代码
 void GrammarAnalyzer::Analysis(){
 	rstack.Run(generator, table);
 }
 
+//根据错误码获取错误信息
 char *GrammarAnalyzer::GetMessage(int errcode){
 	char *res = new char[MAXN];
 	switch (errcode){
@@ -722,6 +736,7 @@ char *GrammarAnalyzer::GetMessage(int errcode){
 	return res;
 }
 
+//测试与跳读
 void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
 	if (s1.find(analyzer.GetToken().Flag) == s1.end()){
 		analyzer.Error(errcode, false, GetMessage(errcode));
@@ -732,6 +747,7 @@ void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
 	}
 }
 
+//运行整个编译模块
 void GrammarAnalyzer::Run(){
 	try{
 		Procedure();
@@ -758,11 +774,12 @@ void GrammarAnalyzer::Run(){
 	}
 }
 
+//格式化输出编译结果
 void GrammarAnalyzer::Show(){
-	cout<<setfill('*');
+	/*cout<<setfill('*');
 	cout<<setw(80)<<""<<setfill(' ')<<endl;
 	table.Display();
-	cout<<setfill('*');
+	cout<<setfill('*');*/
 	cout<<setw(80)<<""<<setfill(' ')<<endl;
 	generator.Show();
 	cout<<setfill('*');

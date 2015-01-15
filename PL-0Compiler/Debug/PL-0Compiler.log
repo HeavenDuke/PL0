@@ -1,4 +1,4 @@
-﻿Build started 2015/1/15 11:44:53.
+﻿Build started 2015/1/15 21:02:12.
      1>Project "C:\Users\HeavenDuke\Git\PL0CP\PL-0Compiler\PL-0Compiler.vcxproj" on node 2 (Build target(s)).
        Project file contains ToolsVersion="12.0". This toolset is unknown or missing. You may be able to resolve this by installing the appropriate .NET Framework for this toolset. Treating the project as if it had ToolsVersion="4.0".
      1>Link:
@@ -7,4 +7,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.24
+Time Elapsed 00:00:00.21

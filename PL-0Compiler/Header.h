@@ -17,8 +17,21 @@
 #include<set>
 #include<list>
 
+
+/***************************************************
+Header.h-用于存储全局信息与约定的文件
+主要功能:
+（1）包含所有可能用到的头文件，减少include次数
+（2）包含词法分析中的保留字表
+（3）包含错误处理模块的错误码表
+（3）定义全局长度与规模约束，诸如标识符名称长度
+***************************************************/
+
+//定义最大程序嵌套层数
 #define MAXLEVEL 2
 
+
+//定义词汇表
 #define BEGIN_RESERVED 1
 #define CALL_RESERVED 2
 #define CONST_RESERVED 3
@@ -54,6 +67,8 @@
 #define MORE_OPERAND 33
 #define MEQUAL_OPERAND 34
 
+
+//定义错误码表
 #define EQUAL_NOT_SET 1
 #define NUMBER_AFTER_EQUAL 2
 #define EQUAL_AFTER_IDENTIFIER 3
@@ -79,7 +94,7 @@
 #define CANNOT_AFTER_FACTOR 23
 #define CANNOT_START_WITH_THIS 24
 #define UNIDENTIFIED_CHARACTER 25
-#define COLON_WITHOUT_EQUAL 26`
+#define COLON_WITHOUT_EQUAL 26
 #define WRITE_PROCEDURE 27
 #define NUMERIC_OVERFLOW 31
 #define STRING_LENGTH_OVERFLOW 32
@@ -90,6 +105,7 @@
 #define TOODEEP 37
 #define DUPLICATE_DECLARATION 38
 
+//定义当前语法分析子程序类型
 #define SUBPROCEDURE 1
 #define SENTENCE 2
 #define CONDITION 3
@@ -97,12 +113,8 @@
 #define FACTOR 5
 #define ITEM 6
 
-#define TOKEN_RESULT_STRING -1
-#define TOKEN_RESULT_NUMBER -2
-#define TOKEN_ERROR -3
-#define TOKEN_WARNING -4
-
-#define MAXHASH 1000
+//定义其他相关最大限制
+#define MAXHASH 10000
 #define LEN 255
 #define MAXP 100
 #define MAXN 255

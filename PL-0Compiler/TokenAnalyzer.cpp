@@ -1,5 +1,6 @@
 #include "TokenAnalyzer.h"
 
+//构造函数，初始化所有相关参数，并由用户指定输入和输出文件
 TokenAnalyzer::TokenAnalyzer(){
 	index=-1;
 	linenum=1;
@@ -7,13 +8,15 @@ TokenAnalyzer::TokenAnalyzer(){
 	ContainError = false;
 	num=0;
 	LoadFile();
-	GetChar();
+	GetChar();   //需要先读取一个字符
 }
 
+//重载赋值运算符
 TokenAnalyzer& TokenAnalyzer::operator=(const TokenAnalyzer& analyzer){
 	return TokenAnalyzer(analyzer);
 }
 
+//拷贝构造函数
 TokenAnalyzer::TokenAnalyzer(const TokenAnalyzer& analyzer){
 	index=analyzer.index;
 	linenum=analyzer.linenum;
@@ -24,6 +27,7 @@ TokenAnalyzer::TokenAnalyzer(const TokenAnalyzer& analyzer){
 	GetChar();
 }
 
+//构造Atoken结构体并向语法分析器传送
 const Atoken TokenAnalyzer::GetToken(){
 	Atoken atoken;
 	atoken.Number = num;
@@ -33,10 +37,12 @@ const Atoken TokenAnalyzer::GetToken(){
 	return atoken;
 }
 
+//分析源程序中是否包含错误，true为是，false为否
 bool TokenAnalyzer::HasError(){
 	return ContainError;
 }
 
+//载入输入与输出文件
 void TokenAnalyzer::LoadFile(){
 	string path_in;
 	string path_out;
@@ -69,6 +75,7 @@ void TokenAnalyzer::LoadFile(){
 	out_file.close();
 }
 
+//解析分界符，单一冒号不被识别
 void TokenAnalyzer::ParsePunctuation(){
 	int index = 0;
 	switch(ch){
@@ -101,6 +108,8 @@ void TokenAnalyzer::ParsePunctuation(){
 					//cout<<"Operand : \':=\'"<<endl;
 			}
 			else{
+				Retreat();
+				Error(COLON_WITHOUT_EQUAL,false,"冒号后必须包含等号");    //单一冒号不被接受
 				//ERROR!
 			}
 			break;
@@ -172,6 +181,7 @@ void TokenAnalyzer::ParsePunctuation(){
 	}
 }
 
+//获取下一个字符，同时更新行号和行字符序号
 void TokenAnalyzer::GetChar(){
 	if(IsEndOfFile()==false){
 		ch=code[++index];
@@ -183,21 +193,26 @@ void TokenAnalyzer::GetChar(){
 	}
 }
 
+//判断是否为文件末尾
 bool TokenAnalyzer::IsEndOfFile(){
 	return (index>=int(code.length()));
 }
 
+
+//回退一个字符
 void TokenAnalyzer::Retreat(){
 	ch=code[--index];
 }
 
+//判断是否为空格
 bool TokenAnalyzer::IsSpace(){
-	if (ch == ' '){
+	if (ch == ' '||ch=='\t'){
 		return true;
 	}
 	return false;
 }
 
+//判断是否为行末
 bool TokenAnalyzer::IsLineEnd(){
 	if(ch=='\n'){
 		return true;
@@ -205,27 +220,29 @@ bool TokenAnalyzer::IsLineEnd(){
 	return false;
 }
 
+//执行词法分析
 void TokenAnalyzer::Run(){
-	Clear();
-	while(IsSpace()||IsLineEnd()){
-		GetChar();
+	Clear();    //首先清空上一轮的结果
+	while(IsSpace()||IsLineEnd()){  
+		GetChar();   //清除行首空白字符
 	}
 	if(IsAlpha()){
-		ParseString();
+		ParseString();   //如果以字母，那么必然为标识符，进入标识符解析子单元
 	}
 	else if(IsNum()){
-		ParseNum();
+		ParseNum();      //如果以数字开头，则必然为常量，进入常量解析子单元
 	}
-	else if(IsPunc()){
+	else if(IsPunc()){   //如果为PL0接受的标点，则必然为分界符，进入分界符解析子单元
 		ParsePunctuation();
 		GetChar();
 	}
-	else if(!IsEndOfFile()){
+	else if(!IsEndOfFile()){ //否则如果不是行末，则一直跳读至文件末尾，并汇报错误
 		Error(MyException(UNIDENTIFIED_CHARACTER, linenum, charindex - 2, "不合法的字符！"), false);
 		throw exception("unidentified character!");
 	}
 }
 
+//用于词法分分析的报错函数
 void TokenAnalyzer::Error(MyException e,bool canrun){
 	global_container.EnQueue(e);
 	if (canrun == false){
@@ -233,6 +250,7 @@ void TokenAnalyzer::Error(MyException e,bool canrun){
 	}
 }
 
+//用于语法分析的报错函数
 void TokenAnalyzer::Error(int type, bool canrun,char *msg){
 	global_container.EnQueue(MyException(type, linenum, charindex - strlen(token) - 2, msg));
 	if (canrun == false){
@@ -240,6 +258,7 @@ void TokenAnalyzer::Error(int type, bool canrun,char *msg){
 	}
 }
 
+//按照约定输出结果，将错误容器中的错误与源程序综合
 void TokenAnalyzer::DisplayResult(){
 	int line = 1;
 	string temp = code;
@@ -260,16 +279,19 @@ void TokenAnalyzer::DisplayResult(){
 	line++;
 }
 
+//输出错误，用于调试
 void TokenAnalyzer::Error(char *s){
 	printf("%s\n",s);
 }
 
+//清除上一轮结果
 void TokenAnalyzer::Clear(){
 	memset(token,0,sizeof(token));
 	num=0;
 	id_code=-1;
 }
 
+//判断是否为常数
 bool TokenAnalyzer::IsNum(){
 	if(ch>='0'&&ch<='9'){
 		return true;
@@ -277,6 +299,7 @@ bool TokenAnalyzer::IsNum(){
 	return false;
 }
 
+//判断是否为字母
 bool TokenAnalyzer::IsAlpha(){
 	if((ch>='A'&&ch<='Z')||(ch>='a'&&ch<='z')){
 		return true;
@@ -284,6 +307,7 @@ bool TokenAnalyzer::IsAlpha(){
 	return false;
 }
 
+//判断是否为识别标点
 bool TokenAnalyzer::IsPunc(){
 	bool res=true;
 	switch(ch){
@@ -309,6 +333,7 @@ bool TokenAnalyzer::IsPunc(){
 	return res;
 }
 
+//解析常数
 void TokenAnalyzer::ParseNum(){
 	int sum=0;
 	int index = 0;
@@ -330,16 +355,17 @@ void TokenAnalyzer::ParseNum(){
 	num=sum;
 }
 
+//解析标识符
 void TokenAnalyzer::ParseString(){
 	bool overflow = false;
 	int begin = charindex;
 	int i=0;
 	bool PreCheckReserved=true;
 	do{
-		if(IsNum()){
+		if(IsNum()){  //预判，如果标识符中包含数字，则一定不是保留字
 			PreCheckReserved=false;
 		}
-		if (i < MAXN){
+		if (i < MAXN){   //预判，如果标识符名称过长，则报错
 			token[i++] = ch;
 		}
 		else{
@@ -352,14 +378,16 @@ void TokenAnalyzer::ParseString(){
 		strcpy(token, "#unidentified#");
 		Error(MyException(STRING_LENGTH_OVERFLOW, linenum, begin - 2, "标识符名称过长！"), false);
 	}
-	if(PreCheckReserved==true){
+	if(PreCheckReserved==true){//解析保留字
 		id_code=IsReserved();
 	}
-	else{
+	else{  //否则为常量
 		id_code=IDENTIFIER;
 	}
 }
 
+
+//用伪字典树的方法查找保留字表
 int TokenAnalyzer::IsReserved(){
 	switch(token[0]){
 		case 'b':
@@ -521,6 +549,7 @@ int TokenAnalyzer::IsReserved(){
 	}
 }
 
+//析构函数
 TokenAnalyzer::~TokenAnalyzer(){
 
 }
