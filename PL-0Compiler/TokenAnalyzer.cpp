@@ -40,7 +40,9 @@ bool TokenAnalyzer::HasError(){
 void TokenAnalyzer::LoadFile(){
 	string path_in;
 	string path_out;
-	/*do{
+	ifstream in_file;
+	ofstream out_file;
+	do{
 		cout << "请指定输入文件路径:";
 		cin >> path_in;
 		in_file.open(path_in, ios::in);
@@ -57,14 +59,14 @@ void TokenAnalyzer::LoadFile(){
 		}
 	} while (!out_file);
 	freopen(path_in.c_str(), "r", stdin);
-	freopen(path_out.c_str(), "w", stdout);*/
-	in_file.open("in.txt", ios::in);
+	freopen(path_out.c_str(), "w", stdout);
 	code.clear();
 	char temp;
 	while((temp=in_file.get())!=EOF){
 		code+=temp;
 	}
-	//in_file.close();
+	in_file.close();
+	out_file.close();
 }
 
 void TokenAnalyzer::ParsePunctuation(){
@@ -187,7 +189,6 @@ bool TokenAnalyzer::IsEndOfFile(){
 
 void TokenAnalyzer::Retreat(){
 	ch=code[--index];
-	eof=false;
 }
 
 bool TokenAnalyzer::IsSpace(){

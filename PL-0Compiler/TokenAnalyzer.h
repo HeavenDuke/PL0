@@ -16,46 +16,50 @@ class TokenAnalyzer
 		TokenAnalyzer& operator=(const TokenAnalyzer& analyzer);
 		TokenAnalyzer(const TokenAnalyzer& analyzer);
 		TokenAnalyzer();
+		~TokenAnalyzer();
+
 		void Run();
 		void TestRun();
 		void Retreat();
+
 		const Atoken GetToken();
+		
 		bool IsEndOfFile();
+		
 		void Error(MyException m, bool canrun);
 		void Error(int type, bool canrun, char* msg);
-		void Display(){ global_container.Display(); }
+
 		void DisplayResult();
 		bool HasError();
-		~TokenAnalyzer();
-
-		ErrorContainer global_container;
 	private:
-		ifstream in_file;
-		ofstream out_file;
+		ErrorContainer global_container;
 		bool ContainError;
 		int linenum;
 		int charindex;
-		char ch;
+
 		char token[MAXN];
 		int num;
-		int index;
 		int id_code;
-		bool eof;
+		
+		int index;
 		string code;
+		char ch;
 
 		void Clear();
+		void GetChar();
+		void LoadFile();
+		void Error(char *);
+
 		bool IsNum();
 		bool IsAlpha();
 		bool IsPunc();
 		int IsReserved();
 		bool IsSpace();
-		void GetChar();
 		bool IsLineEnd();
-		void LoadFile();
+		
 		void ParseNum();
 		void ParseString();
 		void ParsePunctuation();
-		void Error(char *);
 };
 
 #endif

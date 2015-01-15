@@ -202,9 +202,7 @@ void GrammarAnalyzer::Condition(int level, set<int> fsys){
 }
 
 void GrammarAnalyzer::Sentence(int level, int begin, set<int> fsys){
-	int index;
 	set<int> nxtlev;
-	int addr1;
 	switch (analyzer.GetToken().Flag){
 		case IDENTIFIER:
 			AssignDeclaration(level ,fsys);
@@ -429,6 +427,15 @@ void GrammarAnalyzer::WriteDeclaration(int level, set<int> fsys){
 			set<int> nxtlev = fsys;
 			nxtlev.insert(RBRACKET_OPERAND);
 			nxtlev.insert(COMMA_OPERAND);
+			if(analyzer.GetToken().Flag==IDENTIFIER){
+				int index = table.Locate(analyzer.GetToken().Value);
+				if(index>=0){
+					Symbol s=table.GetSymbol(index);
+					if(s.kind==PROCEDURE){
+						analyzer.Error(WRITE_PROCEDURE,false,"不可以输出过程");
+					}
+				}
+			}
 			Expression(level, nxtlev);
 			generator.Add(WRT, 0, 0);
 		} while (analyzer.GetToken().Flag == COMMA_OPERAND);
@@ -708,6 +715,9 @@ char *GrammarAnalyzer::GetMessage(int errcode){
 		case DUPLICATE_DECLARATION:
 			strcpy(res, "重复定义的常量、变量或过程!");
 			break;
+		case WRITE_PROCEDURE:
+			strcpy(res, "不可以输出过程");
+			break;
 	}
 	return res;
 }
@@ -725,17 +735,36 @@ void GrammarAnalyzer::Test(set<int>s1,set<int>s2,int errcode){
 void GrammarAnalyzer::Run(){
 	try{
 		Procedure();
+		cout<<setfill('*');
+		cout<<setw(80)<<""<<setfill(' ')<<endl;
 		analyzer.DisplayResult();
 		Show();
 		if (analyzer.HasError() == false){
 			Analysis();
+			cout<<setfill('*');
+			cout<<setw(80)<<""<<setfill(' ')<<endl;
 		}
 	}
 	catch (exception e){
+		cout<<setfill('*');
+			cout<<setw(80)<<""<<setfill(' ')<<endl;
 		analyzer.DisplayResult();
 		Show();
 		if (analyzer.HasError() == false){
 			Analysis();
+			cout<<setfill('*');
+			cout<<setw(80)<<""<<setfill(' ')<<endl;
 		}
 	}
+}
+
+void GrammarAnalyzer::Show(){
+	cout<<setfill('*');
+	cout<<setw(80)<<""<<setfill(' ')<<endl;
+	table.Display();
+	cout<<setfill('*');
+	cout<<setw(80)<<""<<setfill(' ')<<endl;
+	generator.Show();
+	cout<<setfill('*');
+	cout<<setw(80)<<""<<setfill(' ')<<endl;
 }

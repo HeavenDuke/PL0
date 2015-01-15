@@ -36,6 +36,9 @@ class RuntimeStack{
 		void Show();
 		void Run(PCodeGenerator generator, SymTable table);
 		int Base(int l, int b);
+		bool is_mul_overflow(int a,int b);
+		bool is_add_overflow(int a,int b);
+		bool is_sub_overflow(int a,int b);
 	private:
 		int pc,
 			bp,

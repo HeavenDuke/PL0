@@ -11,19 +11,21 @@ class GrammarAnalyzer{
 	public:
 		GrammarAnalyzer();
 		~GrammarAnalyzer();
-		void Procedure();
 		
+		void Procedure();
 		int SubProcedure(int level, bool isroot, char *name, int prev, set<int> fsys);
 		void Sentence(int level, int begin, set<int> fsys);
 		void Condition(int level, set<int> fsys);
 		void Expression(int level, set<int> fsys);
 		void Item(int level, set<int> fsys);
 		void Factor(int level, set<int> fsys);
+		
+		static char *GetMessage(int Type);
+		void Test(set<int>s1, set<int>s2, int Type);
+		void Analysis();
+		void Run();
 		set<int> Union(set<int> set1, set<int> set2);
-		void Show(){
-			table.Display();
-			generator.Show();
-		}
+		void Show();
 		
 		void ConstDeclaration(int level);
 		void VarDeclaration(int level, int &addr, int &variablenum);
@@ -35,10 +37,6 @@ class GrammarAnalyzer{
 		void RepeatDeclaration(int level, int begin, set<int> fsys);
 		void IfDeclaration(int level, int begin, set<int> fsys);
 		void CallDeclaration(int level, set<int> fsys);
-		static char *GetMessage(int Type);
-		void Test(set<int>s1, set<int>s2, int Type);
-		void Analysis();
-		void Run();
 	private:
 
 		set<int> declbegsys;
